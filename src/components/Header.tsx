@@ -59,7 +59,7 @@ function Header({ onLogout }: HeaderProps) {
                 data-menu="true"
                 id="megamenu"
               >
-                <div className="menu-item active">
+                {/* <div className="menu-item active">
                   <a
                     className="menu-link text-nowrap text-sm text-gray-700 font-medium menu-item-hover:text-primary menu-item-active:text-gray-900 menu-item-active:font-semibold"
                     href="html/demo1.html"
@@ -1715,7 +1715,7 @@ function Header({ onLogout }: HeaderProps) {
                       </a>
                     </div>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
@@ -3885,25 +3885,19 @@ function Header({ onLogout }: HeaderProps) {
           </div>
 
           <button
-            className="btn btn-icon btn-light dark:hidden"
+            className="btn btn-icon btn-icon-lg relative cursor-pointer size-9 rounded-full hover:bg-primary-light hover:text-primary text-gray-500 dark:hidden"
             data-theme-toggle="true"
             data-tooltip="#theme_mode_dark"
           >
             <i className="ki-outline ki-sun"></i>
           </button>
           <button
-            className="btn btn-icon btn-light hidden dark:flex"
+            className="btn btn-icon btn-icon-lg relative cursor-pointer size-9 rounded-full hover:bg-primary-light hover:text-primary text-gray-500 hidden dark:flex"
             data-theme-toggle="true"
             data-tooltip="#theme_mode_light"
           >
             <i className="ki-outline ki-moon"></i>
           </button>
-          <div className="tooltip" id="theme_mode_light">
-            Switch to Light mode
-          </div>
-          <div className="tooltip" id="theme_mode_dark">
-            Switch to Dark mode
-          </div>
 
           <div className="menu" data-menu="true">
             <div
