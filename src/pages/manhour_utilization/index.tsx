@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Main from "../../main-layouts/main";
 import DataTable from "../../components/Datatables";
-import { columns as Process, defaultColumns } from "../../column-def/Process";
+import { columns as Manhour, defaultColumns } from "../../column-def/Manhour";
 import ModalDetailManhour from "@/components/modal/ModalDetailManhour";
 
 export default function ManhourUtilization() {
@@ -21,7 +21,7 @@ export default function ManhourUtilization() {
         setIsAllSelected(false);
       } else {
         setSelectedColumns(
-          Process(() => {})
+          Manhour(() => {})
             .map((col) => ("accessorKey" in col ? col.accessorKey : undefined))
             .filter(Boolean)
         );
@@ -35,8 +35,8 @@ export default function ManhourUtilization() {
   };
 
   const visibleColumns = isAllSelected
-    ? Process(handleOpenModal)
-    : Process(handleOpenModal).filter(
+    ? Manhour(handleOpenModal)
+    : Manhour(handleOpenModal).filter(
         (col) =>
           "accessorKey" in col &&
           col.accessorKey &&
@@ -47,10 +47,10 @@ export default function ManhourUtilization() {
     <Main>
       <DataTable
         columns={visibleColumns}
-        url={`${process.env.NEXT_PUBLIC_API_URL}/api/process`}
+        url={`${process.env.NEXT_PUBLIC_API_URL}/api/process-mh`}
         filterColumns={[
           { header: "All", accessorKey: "All" },
-          ...Process(() => {}).sort((a, b) =>
+          ...Manhour(() => {}).sort((a, b) =>
             (a.header?.toString() ?? "").localeCompare(
               b.header?.toString() ?? ""
             )
