@@ -2,7 +2,12 @@ import clsx from "clsx";
 
 const ModalDetailAR = ({ selectedData }) => {
   return (
-    <div className="modal show" data-modal="true" id="modalDetail">
+    <div
+      className="modal show"
+      data-modal="true"
+      data-modal-persistent="true"
+      id="modalDetail"
+    >
       <div className="modal-content modal-center-y max-w-[800px]">
         <div className="modal-header">
           <h3 className="modal-title font-bold">Account Receivable</h3>

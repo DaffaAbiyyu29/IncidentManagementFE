@@ -185,7 +185,7 @@ function Sidebar() {
 
             <div
               className={`menu-item ${
-                currentPath === "/manhour_utilization" ? "active" : ""
+                currentPath.includes("/manhour_utilization") ? "active" : ""
               }`}
             >
               <Link
@@ -195,11 +195,11 @@ function Sidebar() {
               >
                 <span
                   className={`menu-link-hover:!text-primary menu-icon items-start ${
-                    currentPath === "/manhour_utilization"
+                    currentPath.includes("/manhour_utilization")
                       ? "text-blue-500"
                       : "text-gray-500"
                   } dark:${
-                    currentPath === "/manhour_utilization"
+                    currentPath.includes("/manhour_utilization")
                       ? "text-blue-400"
                       : "text-gray-400"
                   } w-[20px]`}

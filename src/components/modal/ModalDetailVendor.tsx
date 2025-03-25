@@ -4,7 +4,12 @@ const ModalDetailAllPro = ({ selectedData }) => {
   };
 
   return (
-    <div className="modal" data-modal="true" id="modalDetail">
+    <div
+      className="modal"
+      data-modal="true"
+      data-modal-persistent="true"
+      id="modalDetail"
+    >
       <div className="modal-content modal-center-y max-w-[800px]">
         <div className="modal-header">
           <h3 className="modal-title font-bold">Detail Data AllPro</h3>

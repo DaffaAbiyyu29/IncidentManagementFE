@@ -25,6 +25,7 @@ export const defaultColumns = [
   "ActivityDateTime",
   "ActualHours",
   "ManHour",
+  "PercentageUsage",
   "Action",
 ];
 
@@ -40,6 +41,11 @@ export const columns = (handleViewClick: any): ColumnDef<Manhour>[] => [
   {
     accessorKey: "ProcessAssignID",
     header: "Process Assign ID",
+    enableSorting: true,
+  },
+  {
+    accessorKey: "UnitID",
+    header: "Unit ID",
     enableSorting: true,
   },
   {
@@ -96,22 +102,22 @@ export const columns = (handleViewClick: any): ColumnDef<Manhour>[] => [
     ),
   },
   {
-    accessorKey: "ProcessPlanEndDate",
-    header: "Plan End Date",
-    enableSorting: true,
-    cell: ({ row }) => (
-      <span className="text-center w-full block">
-        {formatDate(row.original.ProcessPlanEndDate)}
-      </span>
-    ),
-  },
-  {
     accessorKey: "ProcessActualStartDate",
     header: "Actual Start Date",
     enableSorting: true,
     cell: ({ row }) => (
       <span className="text-center w-full block">
         {formatDate(row.original.ProcessActualStartDate)}
+      </span>
+    ),
+  },
+  {
+    accessorKey: "ProcessPlanEndDate",
+    header: "Plan End Date",
+    enableSorting: true,
+    cell: ({ row }) => (
+      <span className="text-center w-full block">
+        {formatDate(row.original.ProcessPlanEndDate)}
       </span>
     ),
   },
@@ -179,6 +185,17 @@ export const columns = (handleViewClick: any): ColumnDef<Manhour>[] => [
       );
     },
   },
+  {
+    accessorKey: "TglAssign",
+    header: "Assign Date",
+    enableSorting: true,
+    cell: ({ row }) => (
+      <span className="text-center w-full block">
+        {formatDate(row.original.TglAssign)}
+      </span>
+    ),
+  },
+  { accessorKey: "OperatorName", header: "Operator Name", enableSorting: true },
   { accessorKey: "StatusAssign", header: "Status Assign", enableSorting: true },
   { accessorKey: "TypeAssign", header: "Type Assign", enableSorting: true },
   {
@@ -239,6 +256,11 @@ export const columns = (handleViewClick: any): ColumnDef<Manhour>[] => [
         </span>
       );
     },
+  },
+  {
+    accessorKey: "PercentageUsage",
+    header: "Percentage Usage",
+    enableSorting: true,
   },
   {
     accessorKey: "Action",

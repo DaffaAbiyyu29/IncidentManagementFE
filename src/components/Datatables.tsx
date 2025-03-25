@@ -112,14 +112,15 @@ const DataTable = ({ columns, url, filterColumns }) => {
     const getData = async () => {
       setIsLoading(true);
       try {
-        const res = await axios.get(
-          `${url}?page=${page}&limit=${limit}&search=${search}&sort=${sort}&order=${order}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const pageParam = url.includes("?") ? `&page=${page}` : `?page=${page}`;
+        const finalUrl = `${url}${pageParam}&limit=${limit}&search=${search}&sort=${sort}&order=${order}`;
+
+        const res = await axios.get(finalUrl, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
         setData(res.data.data.data);
         setTotalPages(res.data.data.totalPages);
         setTotalItems(res.data.data.totalItems);
@@ -138,7 +139,7 @@ const DataTable = ({ columns, url, filterColumns }) => {
       }
     };
     getData();
-  }, [page, limit, search, sort, order, url]);
+  }, [page, limit, search, sort, order, url, token]);
 
   const table = useReactTable({
     data,
