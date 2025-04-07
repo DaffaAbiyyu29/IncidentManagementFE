@@ -1,5 +1,6 @@
+import { id } from 'date-fns/locale';
 function Footer() {
-    return <footer className="footer">
+    return <footer id="footer" className="footer">
         <div className="container-fixed">
             <div className="flex flex-col md:flex-row justify-center md:justify-between items-center gap-3 py-5">
                 <div className="flex order-2 md:order-1 gap-2 font-normal text-2sm">

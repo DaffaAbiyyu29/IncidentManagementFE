@@ -17,28 +17,36 @@ function Sidebar() {
         className="sidebar-header hidden lg:flex items-center relative justify-between px-3 lg:px-6 shrink-0"
         id="sidebar_header"
       >
-        <a className="dark:hidden" href="html/demo1.html">
+        <a className="dark:hidden" href="/">
           <img
             alt=""
-            className="default-logo min-h-[22px] max-w-none"
-            src="/media/app/default-logo.svg"
+            // className="default-logo min-h-[22px] max-w-none"
+            // src="/media/app/default-logo.svg"
+            className="default-logo min-h-[22px] max-w-[150px]"
+            src="/media/app/patria-light.png"
           />
           <img
             alt=""
-            className="small-logo min-h-[22px] max-w-none"
-            src="/media/app/mini-logo.svg"
+            // className="small-logo min-h-[22px] max-w-none"
+            // src="/media/app/mini-logo.svg"
+            className="small-logo min-h-[22px] max-w-[35px]"
+            src="/media/app/patria-light.png"
           />
         </a>
-        <a className="hidden dark:block" href="html/demo1.html">
+        <a className="hidden dark:block" href="/">
           <img
             alt=""
-            className="default-logo min-h-[22px] max-w-none"
-            src="/media/app/default-logo-dark.svg"
+            // className="default-logo min-h-[22px] max-w-none"
+            // src="/media/app/default-logo-dark.svg"
+            className="default-logo min-h-[22px] max-w-[150px]"
+            src="/media/app/patria-dark.png"
           />
           <img
             alt=""
-            className="small-logo min-h-[22px] max-w-none"
-            src="/media/app/mini-logo.svg"
+            // className="small-logo min-h-[22px] max-w-none"
+            // src="/media/app/mini-logo.svg"
+            className="small-logo min-h-[22px] max-w-[35px]"
+            src="/media/app/patria-dark.png"
           />
         </a>
         <button

@@ -7,6 +7,8 @@ import axios from "axios";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
+import Datepicker from "./Datepicker";
+import { useRouter } from "next/router";
 
 // Contoh penggunaan:
 // <DataTable columns={columns} url="/api/users" />
@@ -78,7 +80,7 @@ import Cookies from "js-cookie";
 //   },
 // ];
 
-const DataTable = ({ columns, url, filterColumns }) => {
+const DataTable = ({ columns, url, filterColumns, filterDate }) => {
   const [data, setData] = useState([]);
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
@@ -88,11 +90,10 @@ const DataTable = ({ columns, url, filterColumns }) => {
   const [sort, setSort] = useState<string>("");
   const [order, setOrder] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
-  useEffect(() => {
-    setIsDarkMode(document.documentElement.classList.contains("dark"));
-  }, []);
+  const router = useRouter();
+  const currentPath = router.pathname;
 
   // useEffect(() => {
   //   const observer = new MutationObserver(() => {
@@ -101,7 +102,7 @@ const DataTable = ({ columns, url, filterColumns }) => {
 
   //   observer.observe(document.documentElement, {
   //     attributes: true,
-  //     attributeFilter: ["class"],
+  //     attributeFilter: ["className"],
   //   });
 
   //   return () => observer.disconnect();
@@ -111,8 +112,10 @@ const DataTable = ({ columns, url, filterColumns }) => {
   useEffect(() => {
     const getData = async () => {
       setIsLoading(true);
+
       try {
         const pageParam = url.includes("?") ? `&page=${page}` : `?page=${page}`;
+        // const finalUrl = `a`;
         const finalUrl = `${url}${pageParam}&limit=${limit}&search=${search}&sort=${sort}&order=${order}`;
 
         const res = await axios.get(finalUrl, {
@@ -121,11 +124,11 @@ const DataTable = ({ columns, url, filterColumns }) => {
           },
         });
 
-        setData(res.data.data.data);
+        const fetchedData = res.data.data.data || [];
         setTotalPages(res.data.data.totalPages);
         setTotalItems(res.data.data.totalItems);
 
-        const numberedData = res.data.data.data.map((item, index: number) => ({
+        const numberedData = fetchedData.map((item, index) => ({
           ...item,
           number: (page - 1) * limit + index + 1,
         }));
@@ -138,8 +141,9 @@ const DataTable = ({ columns, url, filterColumns }) => {
         }, 500);
       }
     };
+
     getData();
-  }, [page, limit, search, sort, order, url, token]);
+  }, [page, limit, search, sort, order, url, token, selectedDate]);
 
   const table = useReactTable({
     data,
@@ -165,20 +169,22 @@ const DataTable = ({ columns, url, filterColumns }) => {
     return pageNumbers;
   };
 
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+  };
+
   return (
     <div className="w-full">
       <div className="flex items-center justify-between mb-4">
         {/* Limit */}
         <div className="flex items-center gap-2">
-          <label className={clsx(isDarkMode ? "text-white" : "text-gray-800")}>
-            Show:
-          </label>
+          <label className="dark:text-gray-800">Show</label>
           <div
-            className="dropdown"
+            className="dropdown border-2 rounded-lg"
             data-dropdown="true"
             data-dropdown-trigger="click"
           >
-            <button className="dropdown-toggle btn btn-light">
+            <button className="dropdown-toggle btn shadow-md shadow-gray-300 border-gray-300 bg-white dark:bg-gray-100 dark:text-gray-800 dark:border-gray-300">
               {limit}
               <i className="ki-duotone ki-down !text-sm dropdown-open:hidden"></i>
               <i className="ki-duotone ki-up !text-sm hidden dropdown-open:block"></i>
@@ -186,12 +192,7 @@ const DataTable = ({ columns, url, filterColumns }) => {
             <div
               data-dropdown-dismiss="true"
               // className="dropdown-content max-w-16 max-h-60 overflow-y-auto border border-gray-300 shadow-lg bg-white rounded-md"
-              className={clsx(
-                "dropdown-content max-w-16 max-h-60 overflow-y-auto border border-gray-300 shadow-lg bg-white rounded-md",
-                isDarkMode
-                  ? "border-gray-300 bg-gray-200 text-white"
-                  : "border-gray-300 bg-white text-black"
-              )}
+              className="dropdown-content max-w-16 max-h-60 overflow-y-auto border border-gray-300 shadow-lg bg-white text-black rounded-md dark:border-gray-300 dark:bg-gray-100 dark:text-gray-800"
             >
               <div className="menu menu-default flex flex-col items-center">
                 {[10, 25, 50, 100, 200].map((item) => (
@@ -214,7 +215,6 @@ const DataTable = ({ columns, url, filterColumns }) => {
               </div>
             </div>
           </div>
-
           {/* <select
             value={limit}
             onChange={(e) => {
@@ -234,35 +234,24 @@ const DataTable = ({ columns, url, filterColumns }) => {
               </option>
             ))}
           </select> */}
-
-          <span className={clsx(isDarkMode ? "text-white" : "text-gray-800")}>
-            entries
-          </span>
-
+          <span className="dark:text-gray-800">entries</span>
           {filterColumns && (
             <div
-              className="dropdown"
+              className="dropdown border-2 rounded-lg"
               data-dropdown="true"
               data-dropdown-trigger="click"
             >
-              <button className="dropdown-toggle btn btn-light">
+              <button className="dropdown-toggle btn shadow-md shadow-gray-300 border-gray-300 bg-white dark:bg-gray-100 dark:text-gray-800 dark:border-gray-300">
                 Columns
                 <i className="ki-duotone ki-down !text-sm dropdown-open:hidden"></i>
                 <i className="ki-duotone ki-up !text-sm hidden dropdown-open:block"></i>
               </button>
               <div
                 // className="dropdown-content w-full max-w-56 py-2 max-h-60 overflow-y-auto border border-gray-300 shadow-lg bg-white rounded-md"
-                className={clsx(
-                  "dropdown-content w-full max-w-56 py-2 max-h-60 overflow-y-auto border border-gray-300 shadow-lg bg-white rounded-md",
-                  isDarkMode
-                    ? "border-gray-300 bg-gray-200 text-white"
-                    : "border-gray-300 bg-white text-black"
-                )}
+                className="dropdown-content w-full max-w-56 py-2 max-h-60 overflow-y-auto border border-gray-300 shadow-lg bg-white text-black rounded-md dark:border-gray-300 dark:bg-gray-100 dark:text-gray-800"
                 style={{
                   scrollbarWidth: "thin",
-                  scrollbarColor: isDarkMode
-                    ? "#6b7280 transparent"
-                    : "#cbd5e1 transparent",
+                  scrollbarColor: "#cbd5e1 transparent",
                 }}
               >
                 <div className="menu menu-default flex flex-wrap gap-0 w-full p-2">
@@ -271,16 +260,61 @@ const DataTable = ({ columns, url, filterColumns }) => {
               </div>
             </div>
           )}
+
+          {/* <div className="input-group">
+            <input
+              className="input"
+              placeholder="Select Month and Year"
+              type="text"
+              value=""
+            />
+            <span
+              className={clsx(
+                "btn text-white btn-icon bg-blue-500 transition-transform hover:scale-[105%] active:scale-[100%] hover:bg-blue-600"
+              )}
+            >
+              <i className="ki-duotone ki-calendar"></i>
+            </span>
+          </div> */}
+          {filterDate && (
+            <>
+              <span className="dark:text-gray-800">
+                {/* MPS Due Date */}
+                {currentPath.includes("pending_ar")
+                  ? "Net Due Date"
+                  : currentPath.includes("pending_billing")
+                  ? "Bill Date 1/2"
+                  : currentPath.includes("manhour_utilization")
+                  ? "MPS Due Date"
+                  : currentPath.includes("delay_operation")
+                  ? "Date"
+                  : currentPath.includes("vendor_performance")
+                  ? "Date"
+                  : currentPath.includes("subcont_performance")
+                  ? "Date"
+                  : ""}
+              </span>
+              <Datepicker
+                value={selectedDate}
+                onChange={handleDateChange}
+                day={false}
+                month={true}
+                year={true}
+              />
+            </>
+          )}
         </div>
 
         {/* Search di sebelah kanan */}
         <div className="flex items-center gap-2 ml-auto">
-          <label>Search:</label>
-          <div className="input">
+          <label className="dark:text-gray-800">Search</label>
+
+          <div className="input !shadow-md !shadow-gray-300 !border-2 !border-gray-300 bg-white dark:bg-gray-100 dark:!border-gray-300">
             <span data-tooltip-placement="left" data-tooltip="#my_tooltip">
               <i className="ki-duotone ki-magnifier"></i>
             </span>
             <input
+              className="text-black dark:text-gray-800"
               placeholder="Search..."
               type="text"
               defaultValue={search}
@@ -288,8 +322,9 @@ const DataTable = ({ columns, url, filterColumns }) => {
                 setPage(1);
                 setSearch(e.target.value);
               }}
-            />{" "}
+            />
           </div>
+
           <div
             className="tooltip transition-opacity duration-300"
             id="my_tooltip"
@@ -310,7 +345,7 @@ const DataTable = ({ columns, url, filterColumns }) => {
       )}
 
       <div className="grid">
-        <div className="border border-gray-200 dark:border-gray-300 card min-w-full">
+        <div className="border border-gray-200 dark:border-gray-300 card min-w-full shadow-md shadow-gray-300">
           <div className="card-table scrollable-x-auto">
             <table className="table align-middle text-gray-700 font-medium text-sm">
               <thead>
@@ -383,12 +418,7 @@ const DataTable = ({ columns, url, filterColumns }) => {
       {/* Pagination */}
       <div className="my-3 flex justify-between items-center">
         <div>
-          <span
-            className={clsx(
-              "text-sm font-semibold",
-              isDarkMode ? "text-white" : "text-gray-600"
-            )}
-          >
+          <span className="text-sm font-semibold dark:text-gray-800">
             Showing {(page - 1) * limit + 1} to{" "}
             {Math.min(page * limit, totalItems)} of {totalItems} entries
           </span>
@@ -397,20 +427,14 @@ const DataTable = ({ columns, url, filterColumns }) => {
           <button
             disabled={isLoading || page === 1}
             onClick={() => setPage(1)}
-            className={clsx(
-              "btn btn-sm",
-              isDarkMode ? "text-white hover:bg-gray-200" : "hover:bg-gray-100"
-            )}
+            className="btn btn-sm hover:bg-gray-100 dark:text-gray-800 dark:hover:bg-gray-100"
           >
             <i className="ki-solid ki-double-left-arrow"></i>
           </button>
           <button
             disabled={isLoading || page === 1}
             onClick={() => setPage(page - 1)}
-            className={clsx(
-              "btn btn-sm",
-              isDarkMode ? "text-white hover:bg-gray-200" : "hover:bg-gray-100"
-            )}
+            className="btn btn-sm hover:bg-gray-100 dark:text-gray-800 dark:hover:bg-gray-100"
           >
             <i className="ki-solid ki-to-left"></i>
           </button>
@@ -423,12 +447,8 @@ const DataTable = ({ columns, url, filterColumns }) => {
               className={clsx(
                 "btn btn-sm",
                 number === page
-                  ? isDarkMode
-                    ? "bg-blue-500 text-white font-bold"
-                    : "bg-blue-500 text-white font-bold"
-                  : isDarkMode
-                  ? "text-white hover:bg-gray-200"
-                  : "hover:bg-gray-100"
+                  ? "bg-blue-500 text-white font-bold"
+                  : "hover:bg-gray-100 dark:hover:bg-gray-100 dark:text-gray-800"
               )}
             >
               {number}
@@ -438,20 +458,14 @@ const DataTable = ({ columns, url, filterColumns }) => {
           <button
             disabled={isLoading || page === totalPages}
             onClick={() => setPage(page + 1)}
-            className={clsx(
-              "btn btn-sm",
-              isDarkMode ? "text-white hover:bg-gray-200" : "hover:bg-gray-100"
-            )}
+            className="btn btn-sm hover:bg-gray-100 dark:text-gray-800 dark:hover:bg-gray-100"
           >
             <i className="ki-solid ki-to-right"></i>
           </button>
           <button
             disabled={isLoading || page === totalPages}
             onClick={() => setPage(totalPages)}
-            className={clsx(
-              "btn btn-sm",
-              isDarkMode ? "text-white hover:bg-gray-200" : "hover:bg-gray-100"
-            )}
+            className="btn btn-sm hover:bg-gray-100 dark:text-gray-800 dark:hover:bg-gray-100"
           >
             <i className="ki-solid ki-double-right-arrow"></i>
           </button>

@@ -1,11 +1,13 @@
-export type IDataUnit = {
-  UnitID: number;
-  UnitSerialNumber: string;
-  ProcessCount: number;
-  StandardMH: number;
-  ActualHours: number;
-  ProcessData: IDataProcess;
-};
+export interface IDataUnit {
+  proNumber: string;
+  unitSerialNumber: string;
+  productGroupName: string;
+  productName: string;
+  processCount: number;
+  standardMH: number;
+  actualHours: number;
+  mpsDueDate: string;
+}
 
 export type IDataProcess = {
   ProcessID: number;

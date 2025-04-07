@@ -115,9 +115,9 @@ const ModalDetailManhour = ({ selectedData }) => {
       data-modal-persistent="true"
       id="modalDetail"
     >
-      <div className="modal-content modal-center-y max-w-screen">
-        <div className="modal-header">
-          <h3 className="modal-title text-xl font-bold">
+      <div className="modal-content modal-center-y max-w-screen bg-white dark:bg-[#111217]">
+        <div className="modal-header py-4">
+          <h3 className="modal-title text-xl font-bold dark:text-gray-800">
             {selectedData && selectedDataAssign
               ? "Detail Data Process Assign"
               : "Detail Data Process"}
@@ -132,7 +132,7 @@ const ModalDetailManhour = ({ selectedData }) => {
         <div className="modal-body scrollable-y py-0 my-5 pl-6 pr-3 mr-3 h-[500px] max-h-[100%]">
           {selectedData && selectedDataAssign ? (
             <>
-              <div className="grid grid-cols-2 gap-4 border rounded-lg p-4">
+              <div className="grid grid-cols-2 gap-4 dark:text-gray-800 border rounded-lg p-4">
                 {[
                   "Process Assign ID",
                   "Leader Name",
@@ -149,8 +149,9 @@ const ModalDetailManhour = ({ selectedData }) => {
                     <span className="text-gray-700">
                       {selectedDataAssign[
                         label
-                          .replace(/ /g, "")
-                          .replace("ProcessAssignID", "ID")
+                          .replace("Process Assign ID", "ID")
+                          .replace("Operator Name", "OperatorName")
+                          .replace("Leader Name", "LeaderName")
                           .replace("Type", "ProcessAssignType")
                           .replace("Status", "ProcessassignStatus")
                           .replace("Remark", "remark")
@@ -162,7 +163,7 @@ const ModalDetailManhour = ({ selectedData }) => {
 
               <br />
 
-              <h2 className="text-lg font-bold mb-2">
+              <h2 className="text-lg font-bold dark:text-gray-800 mb-2">
                 Detail Process Activity
               </h2>
               <DataTable
@@ -201,11 +202,12 @@ const ModalDetailManhour = ({ selectedData }) => {
                     </div>
                   );
                 })}
+                filterDate={false}
               />
             </>
           ) : selectedData ? (
             <>
-              <div className="grid grid-cols-2 gap-4 border rounded-lg p-4">
+              <div className="grid grid-cols-2 gap-4 dark:text-gray-800 border rounded-lg p-4">
                 {[
                   "Process ID",
                   "Group Name",
@@ -222,9 +224,11 @@ const ModalDetailManhour = ({ selectedData }) => {
                     <span className="text-gray-700">
                       {selectedData[
                         label
-                          .replace(/ /g, "")
-                          .replace("GroupName", "ProcessGroupName")
-                          .replace("ProcessName", "MasterProcessName")
+                          .replace("Process ID", "ProcessID")
+                          .replace("Group Name", "ProcessGroupName")
+                          .replace("Process Name", "MasterProcessName")
+                          .replace("Standard MH", "StandardMH")
+                          .replace("Delay In Day", "DelayInDay")
                           .replace("Status", "ProcessStatus")
                           .replace("DelayInDay", "ProcessDelayInDay")
                       ] || "-"}
@@ -235,7 +239,9 @@ const ModalDetailManhour = ({ selectedData }) => {
 
               <br />
 
-              <h2 className="text-lg font-bold mb-2">Data Process Assign</h2>
+              <h2 className="text-lg font-bold dark:text-gray-800 mb-2">
+                Data Process Assign
+              </h2>
               <DataTable
                 columns={visibleColumns}
                 url={`${process.env.NEXT_PUBLIC_API_URL}/api/process-mh-unit-process-assign?processID=${selectedData?.ProcessID}`}
@@ -272,6 +278,7 @@ const ModalDetailManhour = ({ selectedData }) => {
                     </div>
                   );
                 })}
+                filterDate={false}
               />
             </>
           ) : (

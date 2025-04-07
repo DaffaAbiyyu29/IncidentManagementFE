@@ -17,12 +17,14 @@ const ManhourUtilizationUnit = () => {
     const storedData = sessionStorage.getItem("selectedUnit");
     if (storedData) {
       const parsedData = JSON.parse(storedData);
-      if (parsedData?.UnitID) {
+      if (parsedData?.unitSerialNumber) {
         setSelectedData(parsedData);
       } else {
+        // console.log(1);
         handleBack();
       }
     } else {
+      // console.log(2);
       handleBack();
     }
   }, [router]);
@@ -69,12 +71,19 @@ const ManhourUtilizationUnit = () => {
   return (
     <Main>
       {selectedData ? (
-        <div className="p-6 bg-white shadow rounded-lg">
-          <h2 className="text-xl font-bold mb-4">Detail Unit</h2>
-          <div className="grid grid-cols-2 gap-4 border rounded-lg p-4">
+        <div className="p-6 shadow-md shadow-gray-300 rounded-lg dark:border-gray-300 dark:bg-[#111217] dark:text-white border-gray-300 bg-white text-black mb-2">
+          <h2 className="text-xl font-bold dark:text-gray-800 mb-4">
+            Detail Unit
+          </h2>
+
+          <hr className="h-0.5 bg-gray-300 dark:bg-gray-400 border-none mb-4" />
+
+          <div className="grid grid-cols-2 gap-4 dark:text-gray-800 border rounded-lg p-4">
             {[
-              "Unit ID",
+              "PRO Number",
               "Serial Number",
+              "Product Group",
+              "Product Name",
               "Standard MH",
               "Actual Hours",
               "Process",
@@ -83,7 +92,14 @@ const ManhourUtilizationUnit = () => {
                 <span className="font-medium">{label}</span>
                 <span className="text-gray-700">
                   {selectedData[
-                    label.replace(/ /g, "").replace("Process", "ProcessCount")
+                    label
+                      .replace("PRO Number", "proNumber")
+                      .replace("Serial Number", "unitSerialNumber")
+                      .replace("Product Group", "productGroupName")
+                      .replace("Product Name", "productName")
+                      .replace("Standard MH", "standardMH")
+                      .replace("Actual Hours", "actualHours")
+                      .replace("Process", "processCount")
                   ] || "-"}
                 </span>
               </div>
@@ -91,10 +107,12 @@ const ManhourUtilizationUnit = () => {
           </div>
 
           <div className="mt-6">
-          <h2 className="text-lg font-bold mb-4">Data Process</h2>
+            <h2 className="text-xl font-bold dark:text-gray-800 mb-4">
+              Data Process
+            </h2>
             <DataTable
               columns={visibleColumns}
-              url={`${process.env.NEXT_PUBLIC_API_URL}/api/process-mh-unit-process?unitID=${selectedData?.UnitID}`}
+              url={`${process.env.NEXT_PUBLIC_API_URL}/api/process-mh-unit-process?serialNumber=${selectedData?.unitSerialNumber}`}
               filterColumns={[
                 { header: "All", accessorKey: "All" },
                 ...Process(() => {}).sort((a, b) =>
@@ -120,6 +138,7 @@ const ManhourUtilizationUnit = () => {
                   </div>
                 );
               })}
+              filterDate={false}
             />
           </div>
         </div>
