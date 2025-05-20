@@ -12,7 +12,6 @@ import {
 import { useEffect } from "react";
 
 const ModalDetailManhour = ({ selectedData }) => {
-  console.log(selectedData);
   const [selectedColumns, setSelectedColumns] = useState(defaultColumns);
   const [isAllSelected, setIsAllSelected] = useState(false);
   const [selectedDataAssign, setSelectedDataAssign] = useState(null);
@@ -168,7 +167,7 @@ const ModalDetailManhour = ({ selectedData }) => {
               </h2>
               <DataTable
                 columns={visibleColumnsActivity}
-                url={`${process.env.NEXT_PUBLIC_API_URL}/api/process-mh-unit-process-activity?processAssignID=${selectedDataAssign?.ID}`}
+                url={`${process.env.NEXT_PUBLIC_API_URL}/api/detail-process-activity-unit?processAssignID=${selectedDataAssign?.ID}`}
                 filterColumns={[
                   { header: "All", accessorKey: "All" },
                   ...ProcessActivity().sort((a, b) =>
@@ -209,12 +208,17 @@ const ModalDetailManhour = ({ selectedData }) => {
             <>
               <div className="grid grid-cols-2 gap-4 dark:text-gray-800 border rounded-lg p-4">
                 {[
-                  "Process ID",
-                  "Group Name",
                   "Process Name",
+                  "Group Name",
                   "Standard MH",
+                  "Process Plan Start Date",
+                  "Process Plan End Date",
+                  "Process Plan Duration",
+                  "Actual Start Date",
+                  "Actual End Date",
+                  "Actual Duration",
                   "Status",
-                  "Delay In Day",
+                  "Delay (Days)",
                 ].map((label, index) => (
                   <div
                     key={index}
@@ -222,16 +226,72 @@ const ModalDetailManhour = ({ selectedData }) => {
                   >
                     <span className="font-medium">{label}</span>
                     <span className="text-gray-700">
-                      {selectedData[
-                        label
-                          .replace("Process ID", "ProcessID")
-                          .replace("Group Name", "ProcessGroupName")
-                          .replace("Process Name", "MasterProcessName")
-                          .replace("Standard MH", "StandardMH")
-                          .replace("Delay In Day", "DelayInDay")
-                          .replace("Status", "ProcessStatus")
-                          .replace("DelayInDay", "ProcessDelayInDay")
-                      ] || "-"}
+                      {label === "Process Plan Start Date" ||
+                      label === "Process Plan End Date" ||
+                      label === "Actual Start Date" ||
+                      label === "Actual End Date"
+                        ? selectedData[
+                            label
+                              .replace(
+                                "Process Plan Start Date",
+                                "ProcessPlanStartDate"
+                              )
+                              .replace(
+                                "Process Plan End Date",
+                                "ProcessPlanEndDate"
+                              )
+                              .replace(
+                                "Actual Start Date",
+                                "ProcessActualStartDate"
+                              )
+                              .replace(
+                                "Actual End Date",
+                                "ProcessActualEndDate"
+                              )
+                          ]
+                          ? new Date(
+                              selectedData[
+                                label
+                                  .replace(
+                                    "Process Plan Start Date",
+                                    "ProcessPlanStartDate"
+                                  )
+                                  .replace(
+                                    "Process Plan End Date",
+                                    "ProcessPlanEndDate"
+                                  )
+                                  .replace(
+                                    "Actual Start Date",
+                                    "ProcessActualStartDate"
+                                  )
+                                  .replace(
+                                    "Actual End Date",
+                                    "ProcessActualEndDate"
+                                  )
+                              ]
+                            ).toLocaleDateString("id-ID", {
+                              weekday: "long",
+                              day: "2-digit",
+                              month: "long",
+                              year: "numeric",
+                            })
+                          : "-"
+                        : selectedData[
+                            label
+                              .replace("Process Name", "MasterProcessName")
+                              .replace("Group Name", "ProcessGroupName")
+                              .replace("Standard MH", "StandardMH")
+                              .replace(
+                                "Process Plan Duration",
+                                "ProcessPlanDuration"
+                              )
+                              .replace(
+                                "Actual Duration",
+                                "ProcessActualDuration"
+                              )
+                              .replace("Delay (Days)", "ProcessDelayInDay")
+                              .replace("Status", "ProcessStatus")
+                          ] || "-"}
                     </span>
                   </div>
                 ))}
@@ -244,7 +304,7 @@ const ModalDetailManhour = ({ selectedData }) => {
               </h2>
               <DataTable
                 columns={visibleColumns}
-                url={`${process.env.NEXT_PUBLIC_API_URL}/api/process-mh-unit-process-assign?processID=${selectedData?.ProcessID}`}
+                url={`${process.env.NEXT_PUBLIC_API_URL}/api/detail-process-assign-unit?processID=${selectedData?.ProcessID}`}
                 filterColumns={[
                   { header: "All", accessorKey: "All" },
                   ...ProcessAssign(() => {}).sort((a, b) =>

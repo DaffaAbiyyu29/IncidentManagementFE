@@ -238,10 +238,10 @@ export default function SearchModal() {
                                                         />
                                                     </div>
                                                     <div className="flex">
-                          <span
-                              className="hover:z-5 relative inline-flex items-center justify-center shrink-0 rounded-full ring-1 font-semibold leading-none text-3xs size-6 text-success-inverse size-6 ring-success-light bg-success">
-                            +3
-                          </span>
+                                                        <span
+                                                            className="hover:z-5 relative inline-flex items-center justify-center shrink-0 rounded-full ring-1 font-semibold leading-none text-3xs size-6 text-success-inverse ring-success-light bg-success">
+                                                            +3
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -420,7 +420,7 @@ export default function SearchModal() {
                                     <span className="menu-title">Devs Forum</span>
                                 </a>
                             </div>
-                            <div className="text-xs text-gray-600 font-medium pt-2.5 pl-5 pt-2.5 pb-1.5">
+                            <div className="text-xs text-gray-600 font-medium pt-2.5 pl-5 pb-1.5">
                                 Actions
                             </div>
                             <div className="menu-item">
@@ -507,7 +507,7 @@ export default function SearchModal() {
                                             </div>
                                             <div className="flex">
                       <span
-                          className="hover:z-5 relative inline-flex items-center justify-center shrink-0 rounded-full ring-1 font-semibold leading-none text-3xs size-6 text-success-inverse size-6 ring-success-light bg-success">
+                          className="hover:z-5 relative inline-flex items-center justify-center shrink-0 rounded-full ring-1 font-semibold leading-none text-3xs size-6 text-success-inverse ring-success-light bg-success">
                         +3
                       </span>
                                             </div>

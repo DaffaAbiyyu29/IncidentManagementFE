@@ -50,6 +50,7 @@ export default function PendingARIncident() {
             </div>
           );
         })}
+        filterDate={false}
       />
 
       <div

@@ -14,6 +14,7 @@ export default function ManhourUtilization() {
   const [isAllSelected, setIsAllSelected] = useState(false);
   const [month, setMonth] = useState<string | null>(null);
   const [year, setYear] = useState<string | null>(null);
+  const [type, setType] = useState<string | null>("0");
   const [storageUpdated, setStorageUpdated] = useState(Date.now());
 
   const currentDate = new Date();
@@ -24,10 +25,15 @@ export default function ManhourUtilization() {
     if (typeof window !== "undefined") {
       const storedMonth = localStorage.getItem("selectedMonth");
       const storedYear = localStorage.getItem("selectedYear");
+      const storedType = localStorage.getItem("incidentType");
 
       if (storedMonth && storedYear) {
         setMonth(storedMonth);
         setYear(storedYear);
+      }
+
+      if (storedType) {
+        setType(storedType);
       }
     }
   };
@@ -42,7 +48,7 @@ export default function ManhourUtilization() {
     };
 
     const handleCustomEvent = () => {
-      setStorageUpdated(Date.now()); // 🔥 Dengarkan event dari Datepicker
+      setStorageUpdated(Date.now());
     };
 
     window.addEventListener("storage", handleStorageChange);
@@ -58,7 +64,7 @@ export default function ManhourUtilization() {
     loadFromLocalStorage();
   }, [storageUpdated]);
 
-  const handleOpenModal = (rowData) => {
+  const handleChangePage = (rowData) => {
     sessionStorage.setItem("selectedUnit", JSON.stringify(rowData));
     router.push(`/manhour_utilization/unit`);
   };
@@ -83,13 +89,26 @@ export default function ManhourUtilization() {
   };
 
   const visibleColumns = isAllSelected
-    ? Unit(handleOpenModal)
-    : Unit(handleOpenModal).filter(
+    ? Unit(handleChangePage)
+    : Unit(handleChangePage).filter(
         (col) =>
           "accessorKey" in col &&
           col.accessorKey &&
           selectedColumns.includes(col.accessorKey)
       );
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("incidentType");
+    }
+
+    const handleBeforeUnload = () => {
+      localStorage.removeItem("incidentType");
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [type]);
 
   return (
     <Main>
@@ -98,13 +117,13 @@ export default function ManhourUtilization() {
           Manhour Utilization
         </h2>
 
-        <hr className="h-0.5 bg-gray-300 dark:bg-gray-400 border-none mb-4" />
-        
+        <hr className="border-t border-gray-300 dark:border-gray-600 mb-4" />
+
         <DataTable
           columns={visibleColumns}
-          url={`${process.env.NEXT_PUBLIC_API_URL}/api/process-mh-unit?month=${
+          url={`${process.env.NEXT_PUBLIC_API_URL}/api/process-unit?month=${
             month ?? currentMonth
-          }&year=${year ?? currentYear}`}
+          }&year=${year ?? currentYear}&type=${type}`}
           filterColumns={[
             { header: "All", accessorKey: "All" },
             ...Unit(() => {}).sort((a, b) =>
@@ -138,6 +157,7 @@ export default function ManhourUtilization() {
             );
           })}
           filterDate={true}
+          filterIncident={true}
         />
       </div>
     </Main>

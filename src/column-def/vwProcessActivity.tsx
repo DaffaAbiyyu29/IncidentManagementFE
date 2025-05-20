@@ -5,10 +5,10 @@ import { id } from "date-fns/locale";
 
 export const defaultColumns = [
   "atasan",
-  "EmployeeNumber",
-  "ActivityDateTime",
-  "ProcessActivityID",
-  "ProcessAssignID",
+  // "EmployeeNumber",
+  // "ActivityDateTime",
+  // "ProcessActivityID",
+  // "ProcessAssignID",
   "ProcessActivityName",
   "ProcessActivityStatus",
   "ProcessActivityReasonPause",
@@ -28,22 +28,19 @@ const formatDate = (date?: string | null) => {
 };
 
 export const columns = (): ColumnDef<IDataVwProcessActivity>[] => [
-  { accessorKey: "atasan", header: "Atasan", enableSorting: true },
+  { accessorKey: "atasan", header: "Leader Name", enableSorting: true },
   {
     accessorKey: "EmployeeNumber",
     header: "Employee Number",
     enableSorting: true,
   },
+
   {
-    accessorKey: "ActivityDateTime",
-    header: "Activity Date Time",
+    accessorKey: "ProcessActivityName",
+    header: "Process Activity Name",
     enableSorting: true,
-    cell: ({ row }) => (
-      <span className="text-center w-full block">
-        {formatDate(row.original.ActivityDateTime)}
-      </span>
-    ),
   },
+
   {
     accessorKey: "ProcessActivityID",
     header: "Process Activity ID",
@@ -55,33 +52,8 @@ export const columns = (): ColumnDef<IDataVwProcessActivity>[] => [
     enableSorting: true,
   },
   {
-    accessorKey: "ProcessActivityName",
-    header: "Process Activity Name",
-    enableSorting: true,
-  },
-  {
-    accessorKey: "ProcessActivityStatus",
-    header: "Process Activity Status",
-    enableSorting: true,
-  },
-  {
-    accessorKey: "ProcessActivityReasonPause",
-    header: "Reason Pause",
-    enableSorting: true,
-  },
-  {
-    accessorKey: "ActualHoursNonProductive",
-    header: "Non-Productive Hours",
-    enableSorting: true,
-  },
-  {
-    accessorKey: "ProcessActivityActualHours",
-    header: "Actual Hours",
-    enableSorting: true,
-  },
-  {
     accessorKey: "ProcessActivityDateTime",
-    header: "Activity Date",
+    header: "Process Activity Date",
     enableSorting: true,
     cell: ({ row }) => (
       <span className="text-center w-full block">
@@ -90,9 +62,35 @@ export const columns = (): ColumnDef<IDataVwProcessActivity>[] => [
     ),
   },
   {
-    accessorKey: "LastModifiedBy",
-    header: "Last Modified By",
+    accessorKey: "ProcessActivityStatus",
+    header: "Process Activity Status",
     enableSorting: true,
+  },
+  {
+    accessorKey: "ProcessActivityActualHours",
+    header: "Actual Hours Activity",
+    enableSorting: true,
+  },
+
+  {
+    accessorKey: "ActualHoursNonProductive",
+    header: "Non-Productive Hours",
+    enableSorting: true,
+  },
+  {
+    accessorKey: "ProcessActivityReasonPause",
+    header: "Reason Pause",
+    enableSorting: true,
+  },
+  {
+    accessorKey: "ActivityDateTime",
+    header: "Activity Date",
+    enableSorting: true,
+    cell: ({ row }) => (
+      <span className="text-center w-full block">
+        {formatDate(row.original.ActivityDateTime)}
+      </span>
+    ),
   },
   {
     accessorKey: "LastModified",
@@ -103,5 +101,10 @@ export const columns = (): ColumnDef<IDataVwProcessActivity>[] => [
         {formatDate(row.original.LastModified)}
       </span>
     ),
+  },
+  {
+    accessorKey: "LastModifiedBy",
+    header: "Last Modified By",
+    enableSorting: true,
   },
 ];

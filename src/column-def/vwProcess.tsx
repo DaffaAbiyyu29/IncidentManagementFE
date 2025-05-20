@@ -4,8 +4,8 @@ import { format } from "date-fns";
 import { id } from "date-fns/locale";
 
 export const defaultColumns = [
-  "ProcessID",
-  "UnitID",
+  // "ProcessID",
+  // "UnitID",
   "ProcessStatus",
   "ProcessPlanStartDate",
   "ProcessPlanEndDate",
@@ -17,9 +17,9 @@ export const defaultColumns = [
   "StandardMH",
   "ProcessGroupName",
   "ProcessDelayInDay",
-  "ProcessOrder",
+  // "ProcessOrder",
   "LastModified",
-  "MasterProcessID",
+  "RatioPercent",
   "Action",
 ];
 
@@ -32,21 +32,18 @@ const formatDate = (date?: string | null) => {
 };
 
 export const columns = (handleViewClick: any): ColumnDef<IDataVwProcess>[] => [
-  { accessorKey: "ProcessID", header: "Process ID", enableSorting: true },
-  { accessorKey: "UnitID", header: "Unit ID", enableSorting: true },
-  {
-    accessorKey: "ProcessStatus",
-    header: "Process Status",
-    enableSorting: true,
-  },
-  {
-    accessorKey: "MasterProcessID",
-    header: "Master Process ID",
-    enableSorting: true,
-  },
+  // { accessorKey: "ProcessID", header: "Process ID", enableSorting: true },
+  // { accessorKey: "UnitID", header: "Unit ID", enableSorting: true },
   {
     accessorKey: "MasterProcessName",
     header: "Process Name",
+    enableSorting: true,
+  },
+  { accessorKey: "StandardMH", header: "Standard MH", enableSorting: true },
+
+  {
+    accessorKey: "MasterProcessID",
+    header: "Master Process ID",
     enableSorting: true,
   },
 
@@ -103,7 +100,6 @@ export const columns = (handleViewClick: any): ColumnDef<IDataVwProcess>[] => [
   },
 
   // Detail Tambahan
-  { accessorKey: "StandardMH", header: "Standard MH", enableSorting: true },
   {
     accessorKey: "ProcessGroupName",
     header: "Process Group",
@@ -114,7 +110,22 @@ export const columns = (handleViewClick: any): ColumnDef<IDataVwProcess>[] => [
     header: "Delay (Days)",
     enableSorting: true,
   },
+  {
+    accessorKey: "ProcessStatus",
+    header: "Process Status",
+    enableSorting: true,
+  },
   { accessorKey: "ProcessOrder", header: "Process Order", enableSorting: true },
+  {
+    accessorKey: "RatioPercent",
+    header: "Ratio",
+    enableSorting: true,
+    cell: ({ row }) => (
+      <span className="text-center w-full block">
+        {row.original.RatioPercent}%
+      </span>
+    ),
+  },
 
   // Metadata
   {

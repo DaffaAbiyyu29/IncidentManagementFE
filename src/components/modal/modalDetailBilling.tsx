@@ -22,7 +22,7 @@ const ModalDetailBilling = ({ selectedData }) => {
           {selectedData ? (
             <div className="grid grid-cols-2 gap-4 dark:text-gray-800 border rounded-lg p-4">
               {[
-                "ID",
+                // "ID",
                 "Bill Category",
                 "Sales Org",
                 "Bill Date",
@@ -57,8 +57,6 @@ const ModalDetailBilling = ({ selectedData }) => {
                 "Shipping Point Desc",
                 "SOPO Amount",
                 "Exrate",
-                "Created At",
-                "Updated At",
                 "SLACC",
                 "SLA User",
                 "Status",
@@ -78,13 +76,32 @@ const ModalDetailBilling = ({ selectedData }) => {
                               .replace("SOPO Amount", "SOPOAmount")
                           ] || 0
                         )
+                      : label === "Bill Date" || label === "Bill Date 2"
+                      ? selectedData[
+                          label
+                            .replace("Bill Date 2", "BillDate2") // yang spesifik dulu
+                            .replace("Bill Date", "BillDate")
+                        ]
+                        ? new Date(
+                            selectedData[
+                              label
+                                .replace("Bill Date 2", "BillDate2")
+                                .replace("Bill Date", "BillDate")
+                            ]
+                          ).toLocaleDateString("id-ID", {
+                            weekday: "long",
+                            day: "2-digit",
+                            month: "long",
+                            year: "numeric",
+                          })
+                        : "-"
                       : selectedData[
                           label
-                            .replace("ID", "ID")
+                            // .replace("ID", "ID")
                             .replace("Bill Category", "BillCategory")
                             .replace("Sales Org", "SalesOrg")
-                            .replace("Bill Date", "BillDate")
                             .replace("Sold To Party", "SoldToParty")
+                            .replace("Bill Type 2", "BillType2")
                             .replace("Bill Type", "BillType")
                             .replace("Country", "Country")
                             .replace("Sales Document", "SalesDocument")
@@ -110,14 +127,10 @@ const ModalDetailBilling = ({ selectedData }) => {
                             .replace("Draft Mode", "DraftMode")
                             .replace("DBD Ref", "DBDRef")
                             .replace("Solution Order", "SolutionOrder")
-                            .replace("Bill Date 2", "BillDate2")
-                            .replace("Bill Type 2", "BillType2")
                             .replace("Groups", "Groups")
                             .replace("PO Number", "PONumber")
                             .replace("Shipping Point Desc", "ShippingPointDesc")
                             .replace("Exrate", "Exrate")
-                            .replace("Created At", "created_at")
-                            .replace("Updated At", "updated_at")
                             .replace("SLACC", "SLACC")
                             .replace("SLA User", "SLAUser")
                             .replace("Status", "Status")

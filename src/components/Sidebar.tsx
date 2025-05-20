@@ -1,9 +1,18 @@
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { decodeJWT } from "@/helper/decodeJWT";
+import { isMenuVisible } from "@/helper/visibledMenu";
 
 function Sidebar() {
   const router = useRouter();
   const currentPath = router.pathname;
+  const [departemen, setDepartemen] = useState<string>();
+
+  useEffect(() => {
+    const decodeToken = decodeJWT();
+    setDepartemen(decodeToken.departemen);
+  }, []);
 
   return (
     <div
@@ -85,9 +94,9 @@ function Sidebar() {
               >
                 <span
                   className={`menu-link-hover:!text-primary menu-icon items-start ${
-                    currentPath === "/" ? "text-blue-500" : "text-gray-500"
+                    currentPath === "/" ? "text-primary" : "text-gray-500"
                   } dark:${
-                    currentPath === "/" ? "text-blue-400" : "text-gray-400"
+                    currentPath === "/" ? "text-primary" : "text-gray-400"
                   } w-[20px]`}
                 >
                   <i className="ki-solid ki-element-11 text-lg"></i>
@@ -99,192 +108,278 @@ function Sidebar() {
             </div>
 
             <div className="menu-item pt-2.25 pb-px">
-              <span className="menu-heading uppercase pl-[10px] pr-[10px] text-2sm font-semibold text-gray-500">
+              <span className="menu-heading text-md uppercase pl-[10px] pr-[10px] font-semibold text-gray-500">
                 Problem Identifier
               </span>
             </div>
 
-            <div
-              className={`menu-item ${
-                currentPath === "/pending_ar" ? "active" : ""
-              }`}
+            {isMenuVisible(departemen, [
+              "Corporate Command Center",
+              "Marketing Departement",
+            ]) && (
+              <div
+                className={`menu-item ${
+                  currentPath === "/pending_billing" ? "active" : ""
+                }`}
+              >
+                <Link
+                  className="menu-link flex items-center grow cursor-pointer border border-transparent gap-[10px] pl-[10px] pr-[10px] py-[6px]"
+                  href="/pending_billing"
+                  tabIndex={0}
+                >
+                  <span
+                    className={`menu-link-hover:!text-primary menu-icon items-start ${
+                      currentPath === "/pending_billing"
+                        ? "text-primary"
+                        : "text-gray-500"
+                    } dark:${
+                      currentPath === "/pending_billing"
+                        ? "text-primary"
+                        : "text-gray-400"
+                    } w-[20px]`}
+                  >
+                    <i className="ki-solid ki-notepad-bookmark text-lg"></i>
+                  </span>
+                  <span className="menu-title text-sm font-semibold text-gray-700 menu-item-active:text-primary menu-link-hover:!text-primary">
+                    Pending Billing Alert
+                  </span>
+                </Link>
+              </div>
+            )}
+
+            {isMenuVisible(departemen, [
+              "Corporate Command Center",
+              "Finance Departement",
+            ]) && (
+              <div
+                className={`menu-item ${
+                  currentPath === "/pending_ar" ? "active" : ""
+                }`}
+              >
+                <Link
+                  className="menu-link flex items-center grow cursor-pointer border border-transparent gap-[10px] pl-[10px] pr-[10px] py-[6px]"
+                  href="/pending_ar"
+                  tabIndex={0}
+                >
+                  <span
+                    className={`menu-link-hover:!text-primary menu-icon items-start ${
+                      currentPath === "/pending_ar"
+                        ? "text-primary"
+                        : "text-gray-500"
+                    } dark:${
+                      currentPath === "/pending_ar"
+                        ? "text-primary"
+                        : "text-gray-400"
+                    } w-[20px]`}
+                  >
+                    <i className="ki-solid ki-dollar text-lg"></i>
+                  </span>
+                  <span className="menu-title text-sm font-semibold text-gray-700 menu-item-active:text-primary menu-link-hover:!text-primary">
+                    Pending AR Alert
+                  </span>
+                </Link>
+              </div>
+            )}
+
+            {isMenuVisible(departemen, [
+              "Corporate Command Center",
+              "Manufacturing Departement",
+            ]) && (
+              <div
+                className={`menu-item ${
+                  currentPath.includes("/manhour_utilization") ? "active" : ""
+                }`}
+              >
+                <Link
+                  className="menu-link flex items-center grow cursor-pointer border border-transparent gap-[10px] pl-[10px] pr-[10px] py-[6px]"
+                  href="/manhour_utilization"
+                  tabIndex={0}
+                >
+                  <span
+                    className={`menu-link-hover:!text-primary menu-icon items-start ${
+                      currentPath.includes("/manhour_utilization")
+                        ? "text-primary"
+                        : "text-gray-500"
+                    } dark:${
+                      currentPath.includes("/manhour_utilization")
+                        ? "text-primary"
+                        : "text-gray-400"
+                    } w-[20px]`}
+                  >
+                    <i className="ki-solid ki-users text-lg"></i>
+                  </span>
+                  <span className="menu-title text-sm font-semibold text-gray-700 menu-item-active:text-primary menu-link-hover:!text-primary">
+                    Manhour Discrepancy Alert
+                  </span>
+                </Link>
+              </div>
+            )}
+
+            {isMenuVisible(departemen, [
+              "Corporate Command Center",
+              "Production Control Departement",
+            ]) && (
+              <div
+                className={`menu-item ${
+                  currentPath === "/delay_operation" ? "active" : ""
+                }`}
+              >
+                <Link
+                  className="menu-link flex items-center grow cursor-pointer border border-transparent gap-[10px] pl-[10px] pr-[10px] py-[6px]"
+                  href="/delay_operation"
+                  tabIndex={0}
+                >
+                  <span
+                    className={`menu-link-hover:!text-primary menu-icon items-start ${
+                      currentPath === "/delay_operation"
+                        ? "text-primary"
+                        : "text-gray-500"
+                    } dark:${
+                      currentPath === "/delay_operation"
+                        ? "text-primary"
+                        : "text-gray-400"
+                    } w-[20px]`}
+                  >
+                    <i className="ki-solid ki-wrench text-lg"></i>
+                  </span>
+                  <span className="menu-title text-sm font-semibold text-gray-700 menu-item-active:text-primary menu-link-hover:!text-primary">
+                    Predictive Potential Delay Alert
+                  </span>
+                </Link>
+              </div>
+            )}
+
+            {isMenuVisible(departemen, [
+              "Corporate Command Center",
+              "Vendor Management Departement",
+            ]) && (
+              <div
+                className={`menu-item ${
+                  currentPath === "/vendor_performance" ? "active" : ""
+                }`}
+              >
+                <Link
+                  className="menu-link flex items-center grow cursor-pointer border border-transparent gap-[10px] pl-[10px] pr-[10px] py-[6px]"
+                  href="/vendor_performance"
+                  tabIndex={0}
+                >
+                  <span
+                    className={`menu-link-hover:!text-primary menu-icon items-start ${
+                      currentPath === "/vendor_performance"
+                        ? "text-primary"
+                        : "text-gray-500"
+                    } dark:${
+                      currentPath === "/vendor_performance"
+                        ? "text-primary"
+                        : "text-gray-400"
+                    } w-[20px]`}
+                  >
+                    <i className="ki-solid ki-tag text-lg"></i>
+                  </span>
+                  <span className="menu-title text-sm font-semibold text-gray-700 menu-item-active:text-primary menu-link-hover:!text-primary">
+                    Surcharge Performance Alert
+                  </span>
+                </Link>
+              </div>
+            )}
+
+            {isMenuVisible(departemen, [
+              "Corporate Command Center",
+              "Subcont Development Departement",
+            ]) && (
+              <div
+                className={`menu-item ${
+                  currentPath === "/subcont_performance" ? "active" : ""
+                }`}
+              >
+                <Link
+                  className="menu-link flex items-center grow cursor-pointer border border-transparent gap-[10px] pl-[10px] pr-[10px] py-[6px]"
+                  href="/subcont_performance"
+                  tabIndex={0}
+                >
+                  <span
+                    className={`menu-link-hover:!text-primary menu-icon items-start ${
+                      currentPath === "/subcont_performance"
+                        ? "text-primary"
+                        : "text-gray-500"
+                    } dark:${
+                      currentPath === "/subcont_performance"
+                        ? "text-primary"
+                        : "text-gray-400"
+                    } w-[20px]`}
+                  >
+                    <i className="ki-solid ki-delivery-2 text-lg"></i>
+                  </span>
+                  <span className="menu-title text-sm font-semibold text-gray-700 menu-item-active:text-primary menu-link-hover:!text-primary">
+                    Subcont Performance Alert
+                  </span>
+                </Link>
+              </div>
+            )}
+
+            {/* {isMenuVisible(departemen, ["Corporate Command Center"]) && (
+              <>
+                <div className="menu-item pt-2.25 pb-px">
+                  <span className="menu-heading text-md uppercase pl-[10px] pr-[10px] font-semibold text-gray-500">
+                    Others
+                  </span>
+                </div>
+
+                <div
+                  className={`menu-item ${
+                    currentPath === "/incident" ? "active" : ""
+                  }`}
+                >
+                  <Link
+                    className="menu-link flex items-center grow cursor-pointer border border-transparent gap-[10px] pl-[10px] pr-[10px] py-[6px]"
+                    href="/incident"
+                    tabIndex={0}
+                  >
+                    <span
+                      className={`menu-link-hover:!text-primary menu-icon items-start ${
+                        currentPath === "/incident"
+                          ? "text-primary"
+                          : "text-gray-500"
+                      } dark:${
+                        currentPath === "/incident"
+                          ? "text-primary"
+                          : "text-gray-400"
+                      } w-[20px]`}
+                    >
+                      <i className="ki-solid ki-information-3 text-lg"></i>
+                    </span>
+                    <span className="menu-title text-sm font-semibold text-gray-700 menu-item-active:text-primary menu-link-hover:!text-primary">
+                      Incidents
+                    </span>
+                  </Link>
+                </div>
+              </>
+            )} */}
+
+            {/* <div
+              className={`menu-item ${currentPath === "/pic" ? "active" : ""}`}
             >
               <Link
                 className="menu-link flex items-center grow cursor-pointer border border-transparent gap-[10px] pl-[10px] pr-[10px] py-[6px]"
-                href="/pending_ar"
+                href="/pic"
                 tabIndex={0}
               >
                 <span
                   className={`menu-link-hover:!text-primary menu-icon items-start ${
-                    currentPath === "/pending_ar"
-                      ? "text-blue-500"
-                      : "text-gray-500"
+                    currentPath === "/pic" ? "text-primary" : "text-gray-500"
                   } dark:${
-                    currentPath === "/pending_ar"
-                      ? "text-blue-400"
-                      : "text-gray-400"
+                    currentPath === "/pic" ? "text-primary" : "text-gray-400"
                   } w-[20px]`}
                 >
-                  <i className="ki-solid ki-dollar text-lg"></i>
+                  <i className="ki-solid ki-user-tick text-lg"></i>
                 </span>
                 <span className="menu-title text-sm font-semibold text-gray-700 menu-item-active:text-primary menu-link-hover:!text-primary">
-                  Pending AR
+                  PIC
                 </span>
               </Link>
-            </div>
+            </div> */}
 
-            <div
-              className={`menu-item ${
-                currentPath === "/pending_billing" ? "active" : ""
-              }`}
-            >
-              <Link
-                className="menu-link flex items-center grow cursor-pointer border border-transparent gap-[10px] pl-[10px] pr-[10px] py-[6px]"
-                href="/pending_billing"
-                tabIndex={0}
-              >
-                <span
-                  className={`menu-link-hover:!text-primary menu-icon items-start ${
-                    currentPath === "/pending_billing"
-                      ? "text-blue-500"
-                      : "text-gray-500"
-                  } dark:${
-                    currentPath === "/pending_billing"
-                      ? "text-blue-400"
-                      : "text-gray-400"
-                  } w-[20px]`}
-                >
-                  <i className="ki-solid ki-wallet text-lg"></i>
-                </span>
-                <span className="menu-title text-sm font-semibold text-gray-700 menu-item-active:text-primary menu-link-hover:!text-primary">
-                  Pending Billing
-                </span>
-              </Link>
-            </div>
-
-            <div
-              className={`menu-item ${
-                currentPath === "/delay_operation" ? "active" : ""
-              }`}
-            >
-              <Link
-                className="menu-link flex items-center grow cursor-pointer border border-transparent gap-[10px] pl-[10px] pr-[10px] py-[6px]"
-                href="/delay_operation"
-                tabIndex={0}
-              >
-                <span
-                  className={`menu-link-hover:!text-primary menu-icon items-start ${
-                    currentPath === "/delay_operation"
-                      ? "text-blue-500"
-                      : "text-gray-500"
-                  } dark:${
-                    currentPath === "/delay_operation"
-                      ? "text-blue-400"
-                      : "text-gray-400"
-                  } w-[20px]`}
-                >
-                  <i className="ki-solid ki-wrench text-lg"></i>
-                </span>
-                <span className="menu-title text-sm font-semibold text-gray-700 menu-item-active:text-primary menu-link-hover:!text-primary">
-                  Delay Operation
-                </span>
-              </Link>
-            </div>
-
-            <div
-              className={`menu-item ${
-                currentPath.includes("/manhour_utilization") ? "active" : ""
-              }`}
-            >
-              <Link
-                className="menu-link flex items-center grow cursor-pointer border border-transparent gap-[10px] pl-[10px] pr-[10px] py-[6px]"
-                href="/manhour_utilization"
-                tabIndex={0}
-              >
-                <span
-                  className={`menu-link-hover:!text-primary menu-icon items-start ${
-                    currentPath.includes("/manhour_utilization")
-                      ? "text-blue-500"
-                      : "text-gray-500"
-                  } dark:${
-                    currentPath.includes("/manhour_utilization")
-                      ? "text-blue-400"
-                      : "text-gray-400"
-                  } w-[20px]`}
-                >
-                  <i className="ki-solid ki-users text-lg"></i>
-                </span>
-                <span className="menu-title text-sm font-semibold text-gray-700 menu-item-active:text-primary menu-link-hover:!text-primary">
-                  Man Hour Utilization
-                </span>
-              </Link>
-            </div>
-
-            <div
-              className={`menu-item ${
-                currentPath === "/vendor_performance" ? "active" : ""
-              }`}
-            >
-              <Link
-                className="menu-link flex items-center grow cursor-pointer border border-transparent gap-[10px] pl-[10px] pr-[10px] py-[6px]"
-                href="/vendor_performance"
-                tabIndex={0}
-              >
-                <span
-                  className={`menu-link-hover:!text-primary menu-icon items-start ${
-                    currentPath === "/vendor_performance"
-                      ? "text-blue-500"
-                      : "text-gray-500"
-                  } dark:${
-                    currentPath === "/vendor_performance"
-                      ? "text-blue-400"
-                      : "text-gray-400"
-                  } w-[20px]`}
-                >
-                  <i className="ki-solid ki-logistic text-lg"></i>
-                </span>
-                <span className="menu-title text-sm font-semibold text-gray-700 menu-item-active:text-primary menu-link-hover:!text-primary">
-                  Vendor Performance
-                </span>
-              </Link>
-            </div>
-
-            <div
-              className={`menu-item ${
-                currentPath === "/subcont_performance" ? "active" : ""
-              }`}
-            >
-              <Link
-                className="menu-link flex items-center grow cursor-pointer border border-transparent gap-[10px] pl-[10px] pr-[10px] py-[6px]"
-                href="/subcont_performance"
-                tabIndex={0}
-              >
-                <span
-                  className={`menu-link-hover:!text-primary menu-icon items-start ${
-                    currentPath === "/subcont_performance"
-                      ? "text-blue-500"
-                      : "text-gray-500"
-                  } dark:${
-                    currentPath === "/subcont_performance"
-                      ? "text-blue-400"
-                      : "text-gray-400"
-                  } w-[20px]`}
-                >
-                  <i className="ki-solid ki-delivery-2 text-lg"></i>
-                </span>
-                <span className="menu-title text-sm font-semibold text-gray-700 menu-item-active:text-primary menu-link-hover:!text-primary">
-                  Subcont Performance
-                </span>
-              </Link>
-            </div>
-
-            <div className="menu-item pt-2.25 pb-px">
-              <span className="menu-heading uppercase pl-[10px] pr-[10px] text-2sm font-semibold text-gray-500">
-                Others
-              </span>
-            </div>
-
-            <div
+            {/* <div
               className={`menu-item ${currentPath === "/pica" ? "active" : ""}`}
             >
               <Link
@@ -294,9 +389,9 @@ function Sidebar() {
               >
                 <span
                   className={`menu-link-hover:!text-primary menu-icon items-start ${
-                    currentPath === "/pica" ? "text-blue-500" : "text-gray-500"
+                    currentPath === "/pica" ? "text-primary" : "text-gray-500"
                   } dark:${
-                    currentPath === "/pica" ? "text-blue-400" : "text-gray-400"
+                    currentPath === "/pica" ? "text-primary" : "text-gray-400"
                   } w-[20px]`}
                 >
                   <i className="ki-solid ki-folder text-lg"></i>
@@ -305,9 +400,9 @@ function Sidebar() {
                   PICA
                 </span>
               </Link>
-            </div>
+            </div> */}
 
-            <div
+            {/* <div
               className={`menu-item ${currentPath === "/logs" ? "active" : ""}`}
             >
               <Link
@@ -317,9 +412,9 @@ function Sidebar() {
               >
                 <span
                   className={`menu-link-hover:!text-primary menu-icon items-start ${
-                    currentPath === "/logs" ? "text-blue-500" : "text-gray-500"
+                    currentPath === "/logs" ? "text-primary" : "text-gray-500"
                   } dark:${
-                    currentPath === "/logs" ? "text-blue-400" : "text-gray-400"
+                    currentPath === "/logs" ? "text-primary" : "text-gray-400"
                   } w-[20px]`}
                 >
                   <i className="ki-solid ki-time text-lg"></i>
@@ -328,7 +423,7 @@ function Sidebar() {
                   Logs
                 </span>
               </Link>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

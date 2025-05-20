@@ -24,7 +24,7 @@ const ModalDetailAR = ({ selectedData }) => {
           {selectedData && (
             <div className="grid grid-cols-2 gap-4 dark:text-gray-800 border rounded-lg p-4">
               {[
-                "ID",
+                // "ID",
                 "Account",
                 "Customer Name",
                 "Company Code",
@@ -46,14 +46,14 @@ const ModalDetailAR = ({ selectedData }) => {
                 "Amount (Local Curr)",
                 "Local Currency",
                 "Debit/Credit Ind",
-                "SLA CC",
-                "SLA User",
+                // "SLA CC",
+                // "SLA User",
                 "Reference",
                 "Assignment",
                 "Special GL Ind",
                 "Username",
                 "Text",
-                "Status",
+                // "Status",
               ].map((label, index) => (
                 <div key={index} className="flex justify-between border-b pb-2">
                   <span className="font-medium">{label}</span>
@@ -73,9 +73,35 @@ const ModalDetailAR = ({ selectedData }) => {
                               )
                           ] || 0
                         )
+                      : label === "Document Date" ||
+                        label === "Posting Date" ||
+                        label === "Net Due Date" ||
+                        label === "Clearing Date"
+                      ? selectedData[
+                          label
+                            .replace("Document Date", "DocumentDate")
+                            .replace("Posting Date", "PostingDate")
+                            .replace("Net Due Date", "NetDueDate")
+                            .replace("Clearing Date", "ClearingDate")
+                        ]
+                        ? new Date(
+                            selectedData[
+                              label
+                                .replace("Document Date", "DocumentDate")
+                                .replace("Posting Date", "PostingDate")
+                                .replace("Net Due Date", "NetDueDate")
+                                .replace("Clearing Date", "ClearingDate")
+                            ]
+                          ).toLocaleDateString("id-ID", {
+                            weekday: "long",
+                            day: "2-digit",
+                            month: "long",
+                            year: "numeric",
+                          })
+                        : "-"
                       : selectedData[
                           label
-                            .replace("ID", "ID")
+                            // .replace("ID", "ID")
                             .replace("Account", "Account")
                             .replace("Customer Name", "CustomerName")
                             .replace("Company Code", "CompanyCode")
@@ -85,24 +111,20 @@ const ModalDetailAR = ({ selectedData }) => {
                             .replace("GL Account", "GLAccount")
                             .replace("Document Number", "DocumentNumber")
                             .replace("Document Type", "DocumentType")
-                            .replace("Document Date", "DocumentDate")
                             .replace("Posting Key", "PostingKey")
-                            .replace("Posting Date", "PostingDate")
-                            .replace("Net Due Date", "NetDueDate")
-                            .replace("Clearing Date", "ClearingDate")
                             .replace("Clearing Document", "ClearingDocument")
                             .replace("Reverse Clearing", "ReverseClearing")
                             .replace("Document Currency", "DocumentCurrency")
                             .replace("Local Currency", "LocalCurrency")
                             .replace("Debit/Credit Ind", "DebitCreditInd")
-                            .replace("SLA CC", "SLACC")
-                            .replace("SLA User", "SLAUser")
+                            // .replace("SLA CC", "SLACC")
+                            // .replace("SLA User", "SLAUser")
                             .replace("Reference", "Reference")
                             .replace("Assignment", "Assignment")
                             .replace("Special GL Ind", "SpecialGLInd")
                             .replace("Username", "Username")
                             .replace("Text", "Text")
-                            .replace("Status", "Status")
+                          // .replace("Status", "Status")
                         ] || "-"}
                   </span>
                 </div>

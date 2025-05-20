@@ -28,7 +28,4 @@ type IDataFBL5N = {
   CompanyCode?: string;
   created_at?: string;
   updated_at: string;
-  SLACC: string;
-  SLAUser: string;
-  Status: string;
 };

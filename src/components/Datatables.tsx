@@ -9,78 +9,16 @@ import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import Datepicker from "./Datepicker";
 import { useRouter } from "next/router";
+import { Loading } from "./Loading";
 
-// Contoh penggunaan:
-// <DataTable columns={columns} url="/api/users" />
-// type IUser = {
-//   id: string;
-//   name: string;
-//   email: string;
-//   personal_number: string;
-// };
-
-// const columns: ColumnDef<IUser>[] = [
-//   {
-//     accessorKey: "number",
-//     header: "#",
-//     enableSorting: false,
-//   },
-//   {
-//     accessorKey: "id",
-//     header: "ID",
-//     enableSorting: false,
-//   },
-//   {
-//     accessorKey: "name",
-//     header: "Name",
-//     enableSorting: true,
-//   },
-//   {
-//     accessorKey: "email",
-//     header: "Email",
-//     enableSorting: true,
-//   },
-//   {
-//     accessorKey: "personal_number",
-//     header: "NRP",
-//     enableSorting: true,
-//   },
-//   {
-//     accessorKey: "",
-//     header: "Action",
-//     cell: ({ row }) => {
-//       const data = row.original;
-//       console.log(data);
-//       return (
-//         <div className="flex space-x-1 justify-center">
-//           <button className={clsx(
-//             "btn btn-icon bg-blue-500 btn-xs transition-transform",
-//             "hover:scale-[105%]",
-//             "active:scale-[100%]"
-//           )}>
-//             <i className="ki-duotone ki-eye text-white"></i>
-//           </button>
-//           <button className={clsx(
-//             "btn btn-icon bg-orange-500 btn-xs transition-transform",
-//             "hover:scale-[105%]",
-//             "active:scale-[100%]"
-//           )}>
-//             <i className="ki-duotone ki-pencil text-white"></i>
-//           </button>
-//           <button className={clsx(
-//             "btn btn-icon bg-red-500 btn-xs transition-transform",
-//             "hover:scale-[105%]",
-//             "active:scale-[100%]"
-//           )}>
-//             <i className="ki-duotone ki-trash text-white"></i>
-//           </button>
-//         </div>
-//       )
-//     }
-//   },
-// ];
-
-const DataTable = ({ columns, url, filterColumns, filterDate }) => {
+const DataTable = ({
+  columns,
+  url,
+  filterColumns,
+  filterDate,
+  filterIncident = null,
+  refresh = false,
+}) => {
   const [data, setData] = useState([]);
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
@@ -91,10 +29,16 @@ const DataTable = ({ columns, url, filterColumns, filterDate }) => {
   const [order, setOrder] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
+  const [selectedValueIncidentType, setSelectedValueIncidentType] =
+    useState<string>("All Categories");
+  const [flagType, setFlagType] = useState<string>("All Flag Types");
+  const [isClosed, setIsClosed] = useState<string>("false");
+  const [selectedValueIncidentType2, setSelectedValueIncidentType2] =
+    useState<string>("0");
+  const [label, setLabel] = useState<any>([]);
 
   const router = useRouter();
   const currentPath = router.pathname;
-
   // useEffect(() => {
   //   const observer = new MutationObserver(() => {
   //     setIsDarkMode(document.documentElement.classList.contains("dark"));
@@ -143,7 +87,21 @@ const DataTable = ({ columns, url, filterColumns, filterDate }) => {
     };
 
     getData();
-  }, [page, limit, search, sort, order, url, token, selectedDate]);
+  }, [
+    page,
+    limit,
+    search,
+    sort,
+    order,
+    url,
+    token,
+    selectedDate,
+    selectedValueIncidentType,
+    selectedValueIncidentType2,
+    flagType,
+    isClosed,
+    refresh,
+  ]);
 
   const table = useReactTable({
     data,
@@ -173,127 +131,364 @@ const DataTable = ({ columns, url, filterColumns, filterDate }) => {
     setSelectedDate(date);
   };
 
+  // useEffect(() => {
+  //   const handleStorageChange = () => {
+  //     const newType = localStorage.getItem("incidentType") || "All Categories";
+  //     const newFlag = localStorage.getItem("flagType") || "All Flag Types";
+  //     const newIsClosed = localStorage.getItem("isClosed") || "false";
+  //     setSelectedValueIncidentType(newType);
+  //     setSelectedValueIncidentType2(newType);
+  //     setFlagType(newFlag);
+  //     setIsClosed(newIsClosed);
+  //   };
+
+  //   // Listen event custom saat localStorage diubah dari komponen lain
+  //   window.addEventListener("localStorageUpdated", handleStorageChange);
+
+  //   // Optional: Jika ingin tangkap perubahan dari tab lain
+  //   window.addEventListener("storage", handleStorageChange);
+
+  //   return () => {
+  //     window.removeEventListener("localStorageUpdated", handleStorageChange);
+  //     window.removeEventListener("storage", handleStorageChange);
+  //   };
+  // }, []);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    localStorage.setItem("incidentType", value);
+    window.dispatchEvent(new Event("localStorageUpdated")); // untuk trigger re-fetch di ViewIncident
+    setSelectedValueIncidentType(value);
+    setSelectedValueIncidentType2(value); // update label sesuai index
+  };
+
+  const handleChangeFlag = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    localStorage.setItem("flagType", value);
+    window.dispatchEvent(new Event("localStorageUpdated")); // untuk trigger re-fetch di ViewIncident
+    setFlagType(value);
+  };
+
+  const handleIsClosed = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    localStorage.setItem("isClosed", value);
+    window.dispatchEvent(new Event("localStorageUpdated")); // untuk trigger re-fetch di ViewIncident
+    setIsClosed(value);
+  };
+
+  useEffect(() => {
+    if (currentPath === "/pending_billing") {
+      setLabel(["No Incident", "Dispatch BA", "Dispatch User"]);
+    } else if (currentPath === "/pending_ar") {
+      setLabel(["No Incident", "Dispatch BA", "Dispatch User"]);
+    } else if (currentPath === "/manhour_utilization") {
+      setLabel(["No Incident", "Discrepancy < 10%", "Discrepancy > 10%"]);
+    }
+  }, [currentPath, filterIncident]); // ← hanya jalan saat currentPath / filterIncident berubah
+
+  useEffect(() => {
+    const handler = (e: any) => {
+      setSelectedValueIncidentType(e.detail);
+    };
+    window.addEventListener("incidentBarClicked", handler);
+    return () => window.removeEventListener("incidentBarClicked", handler);
+  }, []);
+
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between mb-4">
-        {/* Limit */}
-        <div className="flex items-center gap-2">
-          <label className="dark:text-gray-800">Show</label>
-          <div
-            className="dropdown border-2 rounded-lg"
-            data-dropdown="true"
-            data-dropdown-trigger="click"
-          >
-            <button className="dropdown-toggle btn shadow-md shadow-gray-300 border-gray-300 bg-white dark:bg-gray-100 dark:text-gray-800 dark:border-gray-300">
-              {limit}
-              <i className="ki-duotone ki-down !text-sm dropdown-open:hidden"></i>
-              <i className="ki-duotone ki-up !text-sm hidden dropdown-open:block"></i>
-            </button>
+      <div className="flex flex-col sm:flex-col md:flex-row md:justify-between md:items-center mb-5 gap-4">
+        {/* Left Side: Show & Entries, Column Filter */}
+        <div className="flex flex-col sm:flex-col md:flex-row md:items-center gap-4">
+          <label className="text-sm font-medium dark:text-gray-800">Show</label>
+          <div className="relative">
             <div
-              data-dropdown-dismiss="true"
-              // className="dropdown-content max-w-16 max-h-60 overflow-y-auto border border-gray-300 shadow-lg bg-white rounded-md"
-              className="dropdown-content max-w-16 max-h-60 overflow-y-auto border border-gray-300 shadow-lg bg-white text-black rounded-md dark:border-gray-300 dark:bg-gray-100 dark:text-gray-800"
-            >
-              <div className="menu menu-default flex flex-col items-center">
-                {[10, 25, 50, 100, 200].map((item) => (
-                  <div key={item} className="menu-item w-full text-center">
-                    <a
-                      className="menu-link"
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setLimit(item);
-                        setSort("");
-                        setOrder("");
-                        setPage(1);
-                      }}
-                    >
-                      <span className="menu-title">{item}</span>
-                    </a>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-          {/* <select
-            value={limit}
-            onChange={(e) => {
-              setLimit(Number(e.target.value));
-              setSort("");
-              setOrder("");
-              setPage(1);
-            }}
-            className={clsx(
-              "border rounded p-1",
-              "focus:duotone focus:duotone-1"
-            )}
-          >
-            {[10, 25, 50, 100, 200].map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
-          </select> */}
-          <span className="dark:text-gray-800">entries</span>
-          {filterColumns && (
-            <div
-              className="dropdown border-2 rounded-lg"
+              className="dropdown h-10"
               data-dropdown="true"
               data-dropdown-trigger="click"
             >
               <button className="dropdown-toggle btn shadow-md shadow-gray-300 border-gray-300 bg-white dark:bg-gray-100 dark:text-gray-800 dark:border-gray-300">
-                Columns
-                <i className="ki-duotone ki-down !text-sm dropdown-open:hidden"></i>
-                <i className="ki-duotone ki-up !text-sm hidden dropdown-open:block"></i>
+                {limit}
+                <i className="ki-duotone ki-down ml-2 !text-sm dropdown-open:hidden" />
+                <i className="ki-duotone ki-up ml-2 !text-sm hidden dropdown-open:block" />
               </button>
               <div
-                // className="dropdown-content w-full max-w-56 py-2 max-h-60 overflow-y-auto border border-gray-300 shadow-lg bg-white rounded-md"
-                className="dropdown-content w-full max-w-56 py-2 max-h-60 overflow-y-auto border border-gray-300 shadow-lg bg-white text-black rounded-md dark:border-gray-300 dark:bg-gray-100 dark:text-gray-800"
+                data-dropdown-dismiss="true"
+                className="dropdown-content mt-2 w-full max-w-20 max-h-60 overflow-y-auto border border-gray-300 shadow-lg bg-white text-black rounded-xl dark:border-gray-400 dark:bg-gray-100 dark:text-gray-800"
+              >
+                <div className="menu flex flex-col items-center py-2">
+                  {[10, 25, 50, 100, 200].map((item) => (
+                    <div
+                      key={item}
+                      className="menu-item w-full text-center hover:bg-gray-100 dark:hover:bg-gray-200 transition"
+                    >
+                      <a
+                        href="#"
+                        className="block px-3 py-1 text-sm"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setLimit(item);
+                          setSort("");
+                          setOrder("");
+                          setPage(1);
+                        }}
+                      >
+                        {item}
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+          <span className="text-sm font-medium dark:text-gray-800">
+            entries
+          </span>
+
+          {filterColumns && (
+            <div
+              className="dropdown h-10"
+              data-dropdown="true"
+              data-dropdown-trigger="click"
+            >
+              <button className="dropdown-toggle btn h-10 shadow-md shadow-gray-300 border-gray-300 bg-white dark:bg-gray-100 dark:text-gray-800 dark:border-gray-300">
+                Field Selector
+                <i className="ki-duotone ki-down ml-2 !text-sm dropdown-open:hidden" />
+                <i className="ki-duotone ki-up ml-2 !text-sm hidden dropdown-open:block" />
+              </button>
+              <div
+                className="dropdown-content mt-2 w-full max-w-56 py-2 max-h-60 overflow-y-auto border border-gray-300 shadow-lg bg-white text-black rounded-xl dark:border-gray-400 dark:bg-gray-100 dark:text-gray-800"
                 style={{
                   scrollbarWidth: "thin",
                   scrollbarColor: "#cbd5e1 transparent",
                 }}
               >
-                <div className="menu menu-default flex flex-wrap gap-0 w-full p-2">
-                  {filterColumns}
+                <div className="flex flex-wrap gap-2 p-2">{filterColumns}</div>
+              </div>
+            </div>
+          )}
+
+          {filterIncident && (
+            <div
+              className="dropdown h-10"
+              data-dropdown="true"
+              data-dropdown-trigger="click"
+            >
+              <button className="dropdown-toggle btn h-10 shadow-md shadow-gray-300 border-gray-300 bg-white dark:bg-gray-100 dark:text-gray-800 dark:border-gray-300">
+                {label[selectedValueIncidentType2]}
+                <i className="ki-duotone ki-down ml-2 !text-sm dropdown-open:hidden" />
+                <i className="ki-duotone ki-up ml-2 !text-sm hidden dropdown-open:block" />
+              </button>
+              <div
+                className="dropdown-content mt-2 w-full max-w-56 py-2 max-h-65 overflow-y-auto border border-gray-300 shadow-lg bg-white text-black rounded-xl dark:border-gray-400 dark:bg-gray-100 dark:text-gray-800"
+                style={{
+                  scrollbarWidth: "thin",
+                  scrollbarColor: "#cbd5e1 transparent",
+                }}
+              >
+                <div className="flex flex-col items-start gap-4 p-2">
+                  {label.map((labelText, index) => (
+                    <label
+                      key={index}
+                      className="form-label flex items-center gap-2.5"
+                    >
+                      <input
+                        className="radio"
+                        type="radio"
+                        name="columnChoice"
+                        value={index.toString()}
+                        checked={
+                          selectedValueIncidentType2 === index.toString()
+                        }
+                        onChange={handleChange}
+                      />
+                      {labelText}
+                    </label>
+                  ))}
                 </div>
               </div>
             </div>
           )}
 
-          {/* <div className="input-group">
-            <input
-              className="input"
-              placeholder="Select Month and Year"
-              type="text"
-              value=""
-            />
-            <span
-              className={clsx(
-                "btn text-white btn-icon bg-blue-500 transition-transform hover:scale-[105%] active:scale-[100%] hover:bg-blue-600"
-              )}
-            >
-              <i className="ki-duotone ki-calendar"></i>
-            </span>
-          </div> */}
+          {currentPath === "/" && (
+            <>
+              <div
+                className="dropdown h-10"
+                data-dropdown="true"
+                data-dropdown-trigger="click"
+              >
+                <button className="dropdown-toggle btn h-10 shadow-md shadow-gray-300 border-gray-300 bg-white dark:bg-gray-100 dark:text-gray-800 dark:border-gray-300">
+                  {selectedValueIncidentType || "All Categories"}
+                  <i className="ki-duotone ki-down ml-2 !text-sm dropdown-open:hidden" />
+                  <i className="ki-duotone ki-up ml-2 !text-sm hidden dropdown-open:block" />
+                </button>
+                <div
+                  className="dropdown-content mt-2 w-full max-w-56 py-2 max-h-65 overflow-y-auto border border-gray-300 shadow-lg bg-white text-black rounded-xl dark:border-gray-400 dark:bg-gray-100 dark:text-gray-800"
+                  style={{
+                    scrollbarWidth: "thin",
+                    scrollbarColor: "#cbd5e1 transparent",
+                  }}
+                >
+                  <div className="flex flex-col items-start gap-4 p-2">
+                    <label
+                      key={0}
+                      className="form-label flex items-center gap-2.5"
+                    >
+                      <input
+                        className="radio"
+                        type="radio"
+                        name="columnChoice"
+                        value={"All Categories"}
+                        checked={selectedValueIncidentType === "All Categories"}
+                        onChange={handleChange}
+                      />
+                      All Categories
+                    </label>
+
+                    {[
+                      "Pending AR",
+                      "Pending Billing",
+                      "Manhour Discrepancy",
+                      "Delay Operation",
+                      "Vendor Performance",
+                      "Subcont Performance",
+                    ].map((label, index) => (
+                      <label
+                        key={index}
+                        className="form-label flex items-center gap-2.5"
+                      >
+                        <input
+                          className="radio"
+                          type="radio"
+                          name="columnChoice"
+                          value={label}
+                          checked={selectedValueIncidentType === label}
+                          onChange={handleChange}
+                        />
+                        {label}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div
+                className="dropdown h-10"
+                data-dropdown="true"
+                data-dropdown-trigger="click"
+              >
+                <button className="dropdown-toggle btn h-10 shadow-md shadow-gray-300 border-gray-300 bg-white dark:bg-gray-100 dark:text-gray-800 dark:border-gray-300">
+                  {flagType || "All Flag Types"}
+                  <i className="ki-duotone ki-down ml-2 !text-sm dropdown-open:hidden" />
+                  <i className="ki-duotone ki-up ml-2 !text-sm hidden dropdown-open:block" />
+                </button>
+                <div
+                  className="dropdown-content mt-2 w-full max-w-56 py-2 max-h-65 overflow-y-auto border border-gray-300 shadow-lg bg-white text-black rounded-xl dark:border-gray-400 dark:bg-gray-100 dark:text-gray-800"
+                  style={{
+                    scrollbarWidth: "thin",
+                    scrollbarColor: "#cbd5e1 transparent",
+                  }}
+                >
+                  <div className="flex flex-col items-start gap-4 p-2">
+                    <label
+                      key={0}
+                      className="form-label flex items-center gap-2.5"
+                    >
+                      <input
+                        className="radio"
+                        type="radio"
+                        name="columnChoiceFlag"
+                        value={"All Flag Types"}
+                        checked={flagType === "All Flag Types"}
+                        onChange={handleChangeFlag}
+                      />
+                      All Flag Types
+                    </label>
+
+                    {["Flag", "Unflag"].map((label, index) => (
+                      <label
+                        key={index}
+                        className="form-label flex items-center gap-2.5"
+                      >
+                        <input
+                          className="radio"
+                          type="radio"
+                          name="columnChoiceFlag"
+                          value={label}
+                          checked={flagType === label}
+                          onChange={handleChangeFlag}
+                        />
+                        {label}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div
+                className="dropdown h-10"
+                data-dropdown="true"
+                data-dropdown-trigger="click"
+              >
+                <button className="dropdown-toggle btn h-10 shadow-md shadow-gray-300 border-gray-300 bg-white dark:bg-gray-100 dark:text-gray-800 dark:border-gray-300">
+                  {isClosed === "true" ? "Closed" : "Open"}
+                  <i className="ki-duotone ki-down ml-2 !text-sm dropdown-open:hidden" />
+                  <i className="ki-duotone ki-up ml-2 !text-sm hidden dropdown-open:block" />
+                </button>
+                <div
+                  className="dropdown-content mt-2 w-full max-w-56 py-2 max-h-65 overflow-y-auto border border-gray-300 shadow-lg bg-white text-black rounded-xl dark:border-gray-400 dark:bg-gray-100 dark:text-gray-800"
+                  style={{
+                    scrollbarWidth: "thin",
+                    scrollbarColor: "#cbd5e1 transparent",
+                  }}
+                >
+                  <div className="flex flex-col items-start gap-4 p-2">
+                    <label className="form-label flex items-center gap-2.5">
+                      <input
+                        className="radio"
+                        type="radio"
+                        name="columnChoiceIsClosed"
+                        value="false"
+                        checked={isClosed === "false"}
+                        onChange={handleIsClosed}
+                      />
+                      Open
+                    </label>
+                    <label className="form-label flex items-center gap-2.5">
+                      <input
+                        className="radio"
+                        type="radio"
+                        name="columnChoiceIsClosed"
+                        value="true"
+                        checked={isClosed === "true"}
+                        onChange={handleIsClosed}
+                      />
+                      Closed
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Right Side: Date Filter & Search */}
+        <div className="flex flex-col sm:flex-col md:flex-row md:items-center gap-4">
           {filterDate && (
             <>
-              <span className="dark:text-gray-800">
-                {/* MPS Due Date */}
+              <label className="text-sm font-medium dark:text-gray-800">
                 {currentPath.includes("pending_ar")
                   ? "Net Due Date"
                   : currentPath.includes("pending_billing")
-                  ? "Bill Date 1/2"
+                  ? "Bill Date"
                   : currentPath.includes("manhour_utilization")
                   ? "MPS Due Date"
                   : currentPath.includes("delay_operation")
-                  ? "Date"
-                  : currentPath.includes("vendor_performance")
-                  ? "Date"
-                  : currentPath.includes("subcont_performance")
-                  ? "Date"
+                  ? "MPS Due Date"
+                  : currentPath.includes("vendor_performance") ||
+                    currentPath.includes("subcont_performance")
+                  ? "PO Date"
                   : ""}
-              </span>
+              </label>
               <Datepicker
                 value={selectedDate}
                 onChange={handleDateChange}
@@ -303,59 +498,49 @@ const DataTable = ({ columns, url, filterColumns, filterDate }) => {
               />
             </>
           )}
-        </div>
 
-        {/* Search di sebelah kanan */}
-        <div className="flex items-center gap-2 ml-auto">
-          <label className="dark:text-gray-800">Search</label>
-
-          <div className="input !shadow-md !shadow-gray-300 !border-2 !border-gray-300 bg-white dark:bg-gray-100 dark:!border-gray-300">
-            <span data-tooltip-placement="left" data-tooltip="#my_tooltip">
-              <i className="ki-duotone ki-magnifier"></i>
-            </span>
-            <input
-              className="text-black dark:text-gray-800"
-              placeholder="Search..."
-              type="text"
-              defaultValue={search}
-              onChange={(e) => {
-                setPage(1);
-                setSearch(e.target.value);
-              }}
-            />
-          </div>
-
-          <div
-            className="tooltip transition-opacity duration-300"
-            id="my_tooltip"
-          >
-            Please enter a keyword to search.
+          <label className="text-sm font-medium dark:text-gray-800">
+            Search
+          </label>
+          <div className="relative group">
+            <div className="flex items-center border-2 rounded-lg h-10 shadow-md shadow-gray-300 border-gray-300 px-3 py-2 bg-white dark:bg-gray-100 dark:border-gray-300">
+              <i className="ki-duotone ki-magnifier text-gray-500 mr-2 relative">
+                <span className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap bg-[#0d0e12] text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                  Please enter a keyword to search.
+                </span>
+              </i>
+              <input
+                className="text-sm text-black bg-transparent outline-none dark:text-gray-800"
+                placeholder="Search..."
+                type="text"
+                defaultValue={search}
+                onChange={(e) => {
+                  setPage(1);
+                  setSearch(e.target.value);
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>
 
       {/* Table dengan Scroll jika perlu */}
-      {isLoading && (
-        <div className="absolute top-0 left-0 w-full h-full bg-white bg-opacity-70 z-10 flex items-center justify-center">
-          <div className="flex items-center space-x-2 text-white bg-slate-500 px-4 py-2 rounded">
-            <i className="ki-duotone ki-setting-2 animate-spin text-md"></i>
-            <span>Loading...</span>
-          </div>
-        </div>
-      )}
+      {isLoading && <Loading />}
 
       <div className="grid">
         <div className="border border-gray-200 dark:border-gray-300 card min-w-full shadow-md shadow-gray-300">
           <div className="card-table scrollable-x-auto">
-            <table className="table align-middle text-gray-700 font-medium text-sm">
-              <thead>
+            <table className="table align-middle text-gray-700 text-sm w-full">
+              <thead className="bg-gray-200 dark:bg-gray-700">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr key={headerGroup.id}>
-                    <th className="p-6">No</th>
+                    <th className="p-4 text-center">
+                      <div className="font-bold uppercase">No</div>
+                    </th>
                     {headerGroup.headers.map((header) => (
                       <th
                         key={header.id}
-                        className="p-2 cursor-pointer select-none"
+                        className="p-4 cursor-pointer select-none text-center"
                         onClick={() => {
                           if (!header.column.getCanSort()) return;
                           setSort(header.column.id);
@@ -363,7 +548,7 @@ const DataTable = ({ columns, url, filterColumns, filterDate }) => {
                         }}
                       >
                         <div className="flex items-center justify-between">
-                          <div className="flex-1 text-center text-nowrap">
+                          <div className="flex-1 text-center text-nowrap font-bold uppercase">
                             {flexRender(
                               header.column.columnDef.header,
                               header.getContext()
@@ -390,10 +575,21 @@ const DataTable = ({ columns, url, filterColumns, filterDate }) => {
               <tbody>
                 {table.getRowModel().rows.length > 0 ? (
                   table.getRowModel().rows.map((row, index) => (
-                    <tr key={row.id} className="font-normal">
-                      <td className="text-left">{index + 1}</td>
+                    <tr
+                      key={row.id}
+                      className={clsx(
+                        // "hover:bg-gray-100 dark:hover:bg-gray-200 transition-colors",
+                        row.original.flagStatus === 1 && "bg-yellow-200 dark:text-dark"
+                      )}
+                    >
+                      <td className="text-center p-4 border-b border-gray-200 dark:border-gray-600">
+                        {index + 1}
+                      </td>
                       {row.getVisibleCells().map((cell) => (
-                        <td key={cell.id} className="p-2">
+                        <td
+                          key={cell.id}
+                          className="p-4 border-b border-gray-200 dark:border-gray-600"
+                        >
                           {flexRender(
                             cell.column.columnDef.cell,
                             cell.getContext()
@@ -418,8 +614,12 @@ const DataTable = ({ columns, url, filterColumns, filterDate }) => {
       {/* Pagination */}
       <div className="my-3 flex justify-between items-center">
         <div>
-          <span className="text-sm font-semibold dark:text-gray-800">
+          {/* <span className="text-sm font-semibold dark:text-gray-800">
             Showing {(page - 1) * limit + 1} to{" "}
+            {Math.min(page * limit, totalItems)} of {totalItems} entries
+          </span> */}
+          <span className="text-sm font-normal dark:text-gray-800">
+            Showing {totalItems === 0 ? 0 : (page - 1) * limit + 1} to{" "}
             {Math.min(page * limit, totalItems)} of {totalItems} entries
           </span>
         </div>

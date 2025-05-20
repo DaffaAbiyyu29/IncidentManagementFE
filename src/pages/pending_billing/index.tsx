@@ -10,6 +10,7 @@ export default function PendingBilling() {
   const [isAllSelected, setIsAllSelected] = useState(false);
   const [month, setMonth] = useState<string | null>(null);
   const [year, setYear] = useState<string | null>(null);
+  const [type, setType] = useState<string | null>("0");
   const [storageUpdated, setStorageUpdated] = useState(Date.now());
 
   const currentDate = new Date();
@@ -20,10 +21,15 @@ export default function PendingBilling() {
     if (typeof window !== "undefined") {
       const storedMonth = localStorage.getItem("selectedMonth");
       const storedYear = localStorage.getItem("selectedYear");
+      const storedType = localStorage.getItem("incidentType");
 
       if (storedMonth && storedYear) {
         setMonth(storedMonth);
         setYear(storedYear);
+      }
+
+      if (storedType) {
+        setType(storedType);
       }
     }
   };
@@ -33,20 +39,20 @@ export default function PendingBilling() {
 
     const handleStorageChange = (event: StorageEvent) => {
       if (event.key === "selectedMonth" || event.key === "selectedYear") {
-        setStorageUpdated(Date.now()); // Update state agar trigger re-render
+        setStorageUpdated(Date.now());
       }
     };
 
     const handleCustomEvent = () => {
-      setStorageUpdated(Date.now()); // 🔥 Dengarkan event dari Datepicker
+      setStorageUpdated(Date.now());
     };
 
     window.addEventListener("storage", handleStorageChange);
-    window.addEventListener("localStorageUpdated", handleCustomEvent); // 🔥 Tambahkan event listener
+    window.addEventListener("localStorageUpdated", handleCustomEvent);
 
     return () => {
       window.removeEventListener("storage", handleStorageChange);
-      window.removeEventListener("localStorageUpdated", handleCustomEvent); // 🔥 Bersihkan event listener
+      window.removeEventListener("localStorageUpdated", handleCustomEvent);
     };
   }, []);
 
@@ -88,20 +94,33 @@ export default function PendingBilling() {
           selectedColumns.includes(col.accessorKey)
       );
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("incidentType");
+    }
+
+    const handleBeforeUnload = () => {
+      localStorage.removeItem("incidentType");
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [type]);
+
   return (
     <Main>
       <div className="p-6 shadow-md shadow-gray-300 rounded-lg dark:border-gray-300 dark:bg-[#111217] dark:text-white border-gray-300 bg-white text-black mb-2">
         <h2 className="text-xl font-bold dark:text-gray-800 mb-4">
-          Pending Billing
+          Data Billing
         </h2>
 
-        <hr className="h-0.5 bg-gray-300 dark:bg-gray-400 border-none mb-4" />
+        <hr className="border-t border-gray-300 dark:border-gray-600 mb-4" />
 
         <DataTable
           columns={visibleColumns}
-          url={`${process.env.NEXT_PUBLIC_API_URL}/api/pending-billing?month=${
+          url={`${process.env.NEXT_PUBLIC_API_URL}/api/data-billing?month=${
             month ?? currentMonth
-          }&year=${year ?? currentYear}`}
+          }&year=${year ?? currentYear}&type=${type}`}
           filterColumns={[
             { header: "All", accessorKey: "All" },
             ...VF04(() => {}).sort((a, b) =>
@@ -135,6 +154,7 @@ export default function PendingBilling() {
             );
           })}
           filterDate={true}
+          filterIncident={true}
         />
       </div>
 

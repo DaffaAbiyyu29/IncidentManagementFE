@@ -15,4 +15,5 @@ type IDataVwProcess = {
   ProcessOrder: number;
   LastModified: string;
   MasterProcessID: number;
+  RatioPercent: number;
 };

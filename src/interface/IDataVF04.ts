@@ -36,7 +36,9 @@ interface IDataVF04 {
   Exrate?: number;
   created_at?: string;
   updated_at?: string;
-  SLACC: string;
-  SLAUser: string;
-  Status: string;
+  // SLACC: string;
+  // SLAUser: string;
+  // Status: string;
+  // Detect: string;
+  // Dispatch: string;
 }

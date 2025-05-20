@@ -21,13 +21,19 @@ export const defaultColumns = [
   "BillDate2",
   "NetValue",
   "DocCurrency",
-  "ShippingPointDesc",
-  // "PODStatus",
+  // "ShippingPointDesc",
+  "PODStatus",
   "SOPOAmount",
   "Exrate",
-  "Status",
   "Action",
 ];
+
+const formatDate = (date?: string | null) => {
+  if (!date || isNaN(new Date(date).getTime())) {
+    return <span className="text-red-500 font-bold">N/A</span>;
+  }
+  return format(new Date(date), "EEEE, dd MMMM yyyy", { locale: id });
+};
 
 export const columns = (handleViewClick: any): ColumnDef<IDataVF04>[] => [
   { accessorKey: "ID", header: "ID", enableSorting: true },
@@ -61,9 +67,27 @@ export const columns = (handleViewClick: any): ColumnDef<IDataVF04>[] => [
   { accessorKey: "PONumber", header: "PO Number", enableSorting: true },
   { accessorKey: "BillCategory", header: "Bill Category", enableSorting: true },
   { accessorKey: "BillType", header: "Bill Type", enableSorting: true },
-  { accessorKey: "BillDate", header: "Bill Date", enableSorting: true },
+  {
+    accessorKey: "BillDate",
+    header: "Bill Date",
+    enableSorting: true,
+    cell: ({ row }) => (
+      <span className="text-center w-full block">
+        {formatDate(row.original.BillDate)}
+      </span>
+    ),
+  },
   { accessorKey: "BillType2", header: "Bill Type 2", enableSorting: true },
-  { accessorKey: "BillDate2", header: "Bill Date 2", enableSorting: true },
+  {
+    accessorKey: "BillDate2",
+    header: "Bill Date 2",
+    enableSorting: true,
+    cell: ({ row }) => (
+      <span className="text-center w-full block">
+        {formatDate(row.original.BillDate2)}
+      </span>
+    ),
+  },
   {
     accessorKey: "NetValue",
     header: "Net Value",
@@ -123,9 +147,6 @@ export const columns = (handleViewClick: any): ColumnDef<IDataVF04>[] => [
   { accessorKey: "SortTerm", header: "Sort Term", enableSorting: true },
   { accessorKey: "ItemsRead", header: "Items Read", enableSorting: true },
   { accessorKey: "Counter", header: "Counter", enableSorting: true },
-  { accessorKey: "SLACC", header: "SLA CC", enableSorting: true },
-  { accessorKey: "SLAUser", header: "SLA User", enableSorting: true },
-  { accessorKey: "Status", header: "Status", enableSorting: true },
   {
     accessorKey: "Action",
     header: "Action",

@@ -39,22 +39,22 @@ const Datepicker = ({ value, onChange, month, year, day }) => {
     (_, i) => today.getFullYear() - 25 + i
   );
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("selectedMonth");
-      localStorage.removeItem("selectedYear");
-      localStorage.removeItem("selectedDay");
-    }
+  // useEffect(() => {
+  //   if (typeof window !== "undefined") {
+  //     localStorage.removeItem("selectedMonth");
+  //     localStorage.removeItem("selectedYear");
+  //     localStorage.removeItem("selectedDay");
+  //   }
 
-    const handleBeforeUnload = () => {
-      localStorage.removeItem("selectedMonth");
-      localStorage.removeItem("selectedYear");
-      localStorage.removeItem("selectedDay");
-    };
+  //   const handleBeforeUnload = () => {
+  //     localStorage.removeItem("selectedMonth");
+  //     localStorage.removeItem("selectedYear");
+  //     localStorage.removeItem("selectedDay");
+  //   };
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [month, year, day]);
+  //   window.addEventListener("beforeunload", handleBeforeUnload);
+  //   return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  // }, [month, year, day]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -138,13 +138,13 @@ const Datepicker = ({ value, onChange, month, year, day }) => {
 
   return (
     <div
-      className="relative inline-block w-full max-w-[250px]"
+      className="relative inline-block w-full h-10 max-w-56 min-w-56"
       ref={calendarRef}
     >
       {month || year || day ? (
         <>
           <div className="shadow-md shadow-gray-300 flex items-center border-2 rounded-lg dark:border-gray-300 dark:bg-gray-100 dark:text-gray-800 border-gray-300 bg-white text-black">
-            <input
+            {/* <input
               className="rounded-md w-full px-4 py-2 focus:ring-0 cursor-pointer text-xs font-semibold dark:bg-gray-100 dark:text-gray-800 bg-white text-black"
               placeholder="Select Date"
               type="text"
@@ -152,9 +152,10 @@ const Datepicker = ({ value, onChange, month, year, day }) => {
               readOnly
               onClick={() => setIsOpen(!isOpen)}
               style={{ pointerEvents: "none" }}
-            />
+            /> */}
+            <span className="px-4 w-full text-sm">{displayValue}</span>
             <button
-              className="btn rounded-md border-1 text-white dark:text-gray-900 btn-icon transition-transform hover:scale-[110%] active:scale-[100%] dark:bg-blue-700 dark:border-blue-700 bg-blue-600 border-blue-600"
+              className="btn rounded-md text-white dark:text-gray-900 btn-icon transition-transform hover:scale-[105%] active:scale-[105%] dark:bg-blue-700 dark:border-blue-700 bg-blue-600 border-blue-600"
               onClick={() => setIsOpen(!isOpen)}
             >
               <i className="ki-filled ki-calendar"></i>
@@ -370,10 +371,10 @@ const Datepicker = ({ value, onChange, month, year, day }) => {
             </AnimatePresence>
 
             <button
-              className="w-full rounded-lg text-lg font-bold text-white px-4 py-1 transition-transform hover:scale-[105%] active:scale-[100%] dark:bg-green-700 dark:hover:bg-green-800 bg-green-600 hover:bg-green-700"
+              className="w-full rounded-lg text-md font-semibold text-white px-4 py-1 transition-transform hover:scale-[105%] active:scale-[100%] dark:bg-green-700 dark:hover:bg-green-800 bg-green-600 hover:bg-green-700"
               onClick={handleDateChange}
             >
-              ✔
+              Submit
             </button>
           </motion.div>
         )}

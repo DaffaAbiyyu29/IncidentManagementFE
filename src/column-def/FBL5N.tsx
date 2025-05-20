@@ -19,6 +19,13 @@ export const defaultColumns = [
   "Action",
 ];
 
+const formatDate = (date?: string | null) => {
+  if (!date || isNaN(new Date(date).getTime())) {
+    return <span className="text-red-500 font-bold">N/A</span>;
+  }
+  return format(new Date(date), "EEEE, dd MMMM yyyy", { locale: id });
+};
+
 export const columns = (handleViewClick: any): ColumnDef<IDataFBL5N>[] => [
   // Identitas Transaksi
   { accessorKey: "ID", header: "ID", enableSorting: true },
@@ -32,77 +39,53 @@ export const columns = (handleViewClick: any): ColumnDef<IDataFBL5N>[] => [
     enableSorting: true,
   },
   { accessorKey: "DocumentType", header: "Document Type", enableSorting: true },
-  { accessorKey: "DocumentDate", header: "Document Date", enableSorting: true },
-  { accessorKey: "PostingDate", header: "Posting Date", enableSorting: true },
+  {
+    accessorKey: "DocumentDate",
+    header: "Document Date",
+    enableSorting: true,
+    cell: ({ row }) => (
+      <span className="text-center w-full block">
+        {formatDate(row.original.DocumentDate)}
+      </span>
+    ),
+  },
+  {
+    accessorKey: "PostingDate",
+    header: "Posting Date",
+    enableSorting: true,
+    cell: ({ row }) => (
+      <span className="text-center w-full block">
+        {formatDate(row.original.PostingDate)}
+      </span>
+    ),
+  },
 
   // Informasi Pembayaran & Jatuh Tempo
-  { accessorKey: "NetDueDate", header: "Net Due Date", enableSorting: true },
+  {
+    accessorKey: "NetDueDate",
+    header: "Net Due Date",
+    enableSorting: true,
+    cell: ({ row }) => (
+      <span className="text-center w-full block">
+        {formatDate(row.original.NetDueDate)}
+      </span>
+    ),
+  },
   {
     accessorKey: "ClearingDate",
     header: "Clearing Date",
     enableSorting: true,
-    cell: ({ row }) => {
-      const parseDate = (dateStr) => {
-        if (!dateStr || dateStr === "N/A") return null;
-        try {
-          return parse(dateStr, "EEEE, dd MMMM yyyy", new Date(), {
-            locale: id,
-          });
-        } catch {
-          return null;
-        }
-      };
-
-      const clearingDate = parseDate(row.original.ClearingDate);
-      const slaCC = parseDate(row.original.SLACC);
-      const slaUser = parseDate(row.original.SLAUser);
-      const documentDate = parseDate(row.original.DocumentDate);
-      const customer = row.original.CustomerName;
-
-      let expectedSLA = slaCC ? addDays(slaCC, 7) : null;
-      if (documentDate) {
-        if (customer.includes("UTPE")) expectedSLA = addDays(documentDate, 45);
-        else if (customer.includes("TRIATRA")) {
-          if (customer.includes("saptaindra sejati"))
-            expectedSLA = addDays(documentDate, 60);
-          else if (
-            customer.includes("buma") ||
-            customer.includes("kaltim prima coal")
-          )
-            expectedSLA = addDays(documentDate, 75);
-          else expectedSLA = addDays(documentDate, 45);
-        }
-      }
-
-      let textColor = "text-black";
-      if (!clearingDate) {
-        textColor = "text-red-500";
-      } else if (expectedSLA && clearingDate <= expectedSLA) {
-        textColor = "text-green-500";
-      } else if (expectedSLA && clearingDate > expectedSLA) {
-        textColor = "text-orange-500";
-      }
-
-      return (
-        <span
-          className={clsx(textColor, "font-bold w-[150px] block text-center")}
-        >
-          {clearingDate
-            ? format(new Date(clearingDate), "EEEE, dd MMMM yyyy", {
-                locale: id,
-              })
-            : "N/A"}
-        </span>
-      );
-    },
+    cell: ({ row }) => (
+      <span className="text-center w-full block">
+        {formatDate(row.original.ClearingDate)}
+      </span>
+    ),
   },
   {
     accessorKey: "ClearingDocument",
     header: "Clearing Document",
     enableSorting: true,
   },
-  { accessorKey: "SLACC", header: "SLA CC", enableSorting: true },
-  { accessorKey: "SLAUser", header: "SLA User", enableSorting: true },
 
   // Detail Keuangan
   {
@@ -172,22 +155,6 @@ export const columns = (handleViewClick: any): ColumnDef<IDataFBL5N>[] => [
   },
   { accessorKey: "Username", header: "Username", enableSorting: true },
   { accessorKey: "Text", header: "Text", enableSorting: true },
-  {
-    accessorKey: "Status",
-    header: "Status",
-    enableSorting: true,
-    cell: ({ row }) => {
-      const status = row.original.Status;
-      const statusClass =
-        status === "Closed"
-          ? "badge badge-success"
-          : status === "Pending"
-          ? "badge badge-danger"
-          : "badge badge-secondary";
-
-      return <span className={statusClass}>{status}</span>;
-    },
-  },
   {
     accessorKey: "Action",
     header: "Action",

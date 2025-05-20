@@ -1,12 +1,23 @@
 export interface IDataUnit {
-  proNumber: string;
+  proNumber: string | null;
   unitSerialNumber: string;
-  productGroupName: string;
-  productName: string;
+  productGroupName: string | null;
+  productName: string | null;
   processCount: number;
+  processCompleted: number;
+  progressPercent: number;
   standardMH: number;
   actualHours: number;
-  mpsDueDate: string;
+  mhUtilization: number;
+  mhDiscrepancy: number;
+  unitPlanStartDate: string | null;
+  unitPlanEndDate: string | null;
+  unitPlanDuration: number | null;
+  unitActualStartDate: string | null;
+  unitActualEndDate: string | null;
+  unitActualDuration: number | null;
+  unitDelayInDay: number | null;
+  mpsDueDate: string | null;
 }
 
 export type IDataProcess = {

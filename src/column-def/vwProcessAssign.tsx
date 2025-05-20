@@ -4,19 +4,19 @@ import { format } from "date-fns";
 import { id } from "date-fns/locale";
 
 export const defaultColumns = [
-  "ID",
-  "IsActive",
+  // "ID",
+  // "IsActive",
   "LastModified",
   "LeaderName",
-  "NRP",
+  // "NRP",
   "OperatorName",
   "ProcessAssignType",
-  "ProcessID",
+  // "ProcessID",
   "ProcessassignStatus",
   "Startassign",
   "Stopassign",
   "TglAssign",
-  "UnitID",
+  // "UnitID",
   "lastStart",
   "lastStop",
   "remark",
@@ -40,6 +40,16 @@ export const columns = (
   { accessorKey: "NRP", header: "NRP", enableSorting: true },
   { accessorKey: "OperatorName", header: "Operator Name", enableSorting: true },
   {
+    accessorKey: "TglAssign",
+    header: "Assign Date",
+    enableSorting: true,
+    cell: ({ row }) => (
+      <span className="text-center w-full block">
+        {formatDate(row.original.TglAssign)}
+      </span>
+    ),
+  },
+  {
     accessorKey: "ProcessAssignType",
     header: "Assign Type",
     enableSorting: true,
@@ -52,17 +62,6 @@ export const columns = (
   },
   { accessorKey: "Startassign", header: "Start Assign", enableSorting: true },
   { accessorKey: "Stopassign", header: "Stop Assign", enableSorting: true },
-
-  {
-    accessorKey: "TglAssign",
-    header: "Assign Date",
-    enableSorting: true,
-    cell: ({ row }) => (
-      <span className="text-center w-full block">
-        {formatDate(row.original.TglAssign)}
-      </span>
-    ),
-  },
 
   { accessorKey: "UnitID", header: "Unit ID", enableSorting: true },
 

@@ -77,6 +77,7 @@ export default function VendorPerformance() {
             </div>
           );
         })}
+        filterDate={true}
       />
 
       <button id="toggleModal" data-modal-toggle="#modalDetail"></button>

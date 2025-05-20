@@ -1,404 +1,270 @@
-import React, { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
 import Main from "../main-layouts/main";
-import { getAreaChartConfig } from "../config/chartConfig";
+import React, { useState, useEffect } from "react";
 import Datepicker from "../components/Datepicker";
+import DataTable from "@/components/Datatables";
+import { columns as Incident, defaultColumns } from "../column-def/TrxIncident";
+import { useRouter } from "next/router";
+import ModalDetailIncident from "@/components/modal/modalDetailIncident";
+import { BarChart } from "@/components/BarChart";
 import axios from "axios";
+import Cookies from "js-cookie";
 
-const ReactApexChart = dynamic(() => import("react-apexcharts"), {
-  ssr: false,
-});
+// Import ApexCharts (React component) secara dinamis (client-side only)
 
-const Home = () => {
-  const [mounted, setMounted] = useState(false);
-  const [chartDataMH, setChartDataMH] = useState<number[]>([]);
-  const [chartDataAR, setChartDataAR] = useState<number[]>([]);
-  const [chartDataBilling, setChartDataBilling] = useState<number[]>([]);
-  const [chartDataOperation, setChartDataOperation] = useState<number[]>([]);
-  const [chartDataVendor, setChartDataVendor] = useState<number[]>([]);
-  const [chartDataSubcont, setChartDataSubcont] = useState<number[]>([]);
+const Index = () => {
+  const router = useRouter();
+
+  const currentDate = new Date();
+  const currentMonth = (currentDate.getMonth() + 1).toString();
+  const currentYear = currentDate.getFullYear().toString();
+
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
-  const [loading, setLoading] = useState(true);
+
+  const [selectedData, setSelectedData] = useState(null);
+  const [selectedColumns, setSelectedColumns] = useState(defaultColumns);
+  const [isAllSelected, setIsAllSelected] = useState(false);
+  const [month, setMonth] = useState<string | null>(null);
+  const [year, setYear] = useState<string | null>(null);
+  const [type, setType] = useState<string | null>(null);
+  const [storageUpdated, setStorageUpdated] = useState(Date.now());
+  const [refreshTable, setRefreshTable] = useState(false);
+  const [flagType, setFlagType] = useState<number>(2);
+  const [isClosed, setIsClosed] = useState<string>("false");
+
+  const handleDateChange = (date: Date | null) => setSelectedDate(date);
+
+  const loadFromLocalStorage = () => {
+    if (typeof window !== "undefined") {
+      const storedMonth = localStorage.getItem("selectedMonth");
+      const storedYear = localStorage.getItem("selectedYear");
+      const storedType = localStorage.getItem("incidentType");
+      const storedFlag = localStorage.getItem("flagType");
+      const storedIsClosed = localStorage.getItem("isClosed");
+
+      if (storedMonth && storedYear) {
+        setMonth(storedMonth);
+        setYear(storedYear);
+      }
+
+      if (storedType) {
+        setType(storedType);
+      }
+
+      if (storedFlag) {
+        switch (storedFlag) {
+          case "All Flag Types":
+            setFlagType(2);
+            break;
+          case "Flag":
+            setFlagType(1);
+            break;
+          case "Unflag":
+            setFlagType(0);
+            break;
+        }
+      }
+
+      if (storedIsClosed) {
+        setIsClosed(storedIsClosed);
+      }
+    }
+  };
 
   useEffect(() => {
-    setMounted(true);
-    fetchDataMH();
-    fetchDataAR();
-    fetchDataBilling();
-    fetchDataOperation();
-    fetchDataVendor();
-    fetchDataSubcont();
-  }, [selectedDate]);
+    loadFromLocalStorage();
 
-  const fetchDataMH = async () => {
-    setLoading(true);
+    const handleStorageChange = (event: StorageEvent) => {
+      if (
+        event.key === "selectedMonth" ||
+        event.key === "selectedYear" ||
+        event.key === "incidentType" ||
+        event.key === "flagType" ||
+        event.key === "isClosed"
+      ) {
+        setStorageUpdated(Date.now());
+      }
+    };
+
+    const handleCustomEvent = () => {
+      setStorageUpdated(Date.now());
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("localStorageUpdated", handleCustomEvent);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("localStorageUpdated", handleCustomEvent);
+    };
+  }, []);
+
+  useEffect(() => {
+    loadFromLocalStorage();
+  }, [storageUpdated]);
+
+  const flagIncident = async (id: number, flag: number) => {
     try {
-      const year = selectedDate
-        ? selectedDate.getFullYear()
-        : new Date().getFullYear();
-      const response = await axios.get(
-        `http://localhost:3000/api/process-mh-unit-count?year=${year}`
+      const token = Cookies.get("token");
+
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/flag`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          id,
+          flag,
+        }
       );
 
-      if (response.data.success) {
-        const monthlyData = {};
-        for (let i = 1; i <= 12; i++) {
-          monthlyData[i] = 0;
-        }
-
-        response.data.data.data.forEach((item) => {
-          monthlyData[item.month] = item.count;
-        });
-
-        setChartDataMH(Object.values(monthlyData));
-      } else {
-        console.error("Failed to fetch data:", response.data.data.message);
-        setChartDataMH([]);
+      if (response) {
+        setRefreshTable((prev) => !prev);
       }
     } catch (error) {
-      console.error("Error fetching data:", error);
-      setChartDataMH([]);
-    } finally {
-      setLoading(false);
+      console.error("Gagal ambil detail unit:", error);
+      return null;
     }
   };
 
-  const fetchDataAR = async () => {
-    setLoading(true);
-    try {
-      const year = selectedDate
-        ? selectedDate.getFullYear()
-        : new Date().getFullYear();
-      const response = await axios.get(
-        `http://localhost:3000/api/pending-ar-count?year=${year}`
-      );
-
-      if (response.data.success) {
-        const monthlyData = {};
-        for (let i = 1; i <= 12; i++) {
-          monthlyData[i] = 0;
-        }
-
-        response.data.data.data.forEach((item) => {
-          monthlyData[item.month] = item.count;
-        });
-
-        setChartDataAR(Object.values(monthlyData));
-      } else {
-        console.error("Failed to fetch data:", response.data.data.message);
-        setChartDataAR([]);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setChartDataAR([]);
-    } finally {
-      setLoading(false);
+  const handleOpenModal = (rowData, type) => {
+    if (type === "view") {
+      setSelectedData(rowData);
+      document.getElementById("toggleModal").click();
+    } else if (type === "dispatch") {
+      // dispatch
+    } else if (type === "flag") {
+      flagIncident(rowData.id, rowData.flagStatus);
+    } else if (type === "pica") {
+      localStorage.setItem("LogID", rowData.id);
+      router.push(`/incident/pica`);
     }
   };
 
-  const fetchDataBilling = async () => {
-    setLoading(true);
-    try {
-      const year = selectedDate
-        ? selectedDate.getFullYear()
-        : new Date().getFullYear();
-      const response = await axios.get(
-        `http://localhost:3000/api/pending-billing-count?year=${year}`
-      );
-
-      if (response.data.success) {
-        const monthlyData = {};
-        for (let i = 1; i <= 12; i++) {
-          monthlyData[i] = 0;
-        }
-
-        response.data.data.data.forEach((item) => {
-          monthlyData[item.month] = item.count;
-        });
-
-        setChartDataBilling(Object.values(monthlyData));
+  const handleColumnToggle = (key) => {
+    if (key === "All") {
+      if (isAllSelected) {
+        setSelectedColumns([]);
+        // setSelectedColumns(defaultColumns);
+        setIsAllSelected(false);
       } else {
-        console.error("Failed to fetch data:", response.data.data.message);
-        setChartDataBilling([]);
+        setSelectedColumns(
+          Incident(() => {})
+            .map((col) => ("accessorKey" in col ? col.accessorKey : undefined))
+            .filter(Boolean)
+        );
+        setIsAllSelected(true);
       }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setChartDataBilling([]);
-    } finally {
-      setLoading(false);
+    } else {
+      setSelectedColumns((prev) =>
+        prev.includes(key) ? prev.filter((col) => col !== key) : [...prev, key]
+      );
     }
   };
 
-  const fetchDataOperation = async () => {
-    setLoading(true);
-    try {
-      const year = selectedDate
-        ? selectedDate.getFullYear()
-        : new Date().getFullYear();
-      const response = await axios.get(
-        `http://localhost:3000/api/schedule-recommendation-count?year=${year}`
+  const visibleColumns = isAllSelected
+    ? Incident(handleOpenModal)
+    : Incident(handleOpenModal).filter(
+        (col) =>
+          "accessorKey" in col &&
+          col.accessorKey &&
+          selectedColumns.includes(col.accessorKey)
       );
 
-      if (response.data.success) {
-        const monthlyData = {};
-        for (let i = 1; i <= 12; i++) {
-          monthlyData[i] = 0;
-        }
-
-        response.data.data.data.forEach((item) => {
-          monthlyData[item.month] = item.count;
-        });
-
-        setChartDataOperation(Object.values(monthlyData));
-      } else {
-        console.error("Failed to fetch data:", response.data.data.message);
-        setChartDataOperation([]);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setChartDataOperation([]);
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("incidentType");
+      localStorage.removeItem("flagType");
+      localStorage.removeItem("selectedMonth");
+      localStorage.removeItem("selectedYear");
+      localStorage.removeItem("isClosed");
     }
-  };
 
-  const fetchDataVendor = async () => {
-    setLoading(true);
-    try {
-      const year = selectedDate
-        ? selectedDate.getFullYear()
-        : new Date().getFullYear();
-      const response = await axios.get(
-        `http://localhost:3000/api/vendor-performance-count?year=${year}`
-      );
+    const handleBeforeUnload = () => {
+      localStorage.removeItem("incidentType");
+      localStorage.removeItem("flagType");
+      localStorage.removeItem("selectedMonth");
+      localStorage.removeItem("selectedYear");
+      localStorage.removeItem("isClosed");
+    };
 
-      if (response.data.success) {
-        const monthlyData = {};
-        for (let i = 1; i <= 12; i++) {
-          monthlyData[i] = 0;
-        }
-
-        response.data.data.data.forEach((item) => {
-          monthlyData[item.month] = item.count;
-        });
-
-        setChartDataVendor(Object.values(monthlyData));
-      } else {
-        console.error("Failed to fetch data:", response.data.data.message);
-        setChartDataVendor([]);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setChartDataVendor([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchDataSubcont = async () => {
-    setLoading(true);
-    try {
-      const year = selectedDate
-        ? selectedDate.getFullYear()
-        : new Date().getFullYear();
-      const response = await axios.get(
-        `http://localhost:3000/api/vendor-performance-count?year=${year}`
-      );
-
-      if (response.data.success) {
-        const monthlyData = {};
-        for (let i = 1; i <= 12; i++) {
-          monthlyData[i] = 0;
-        }
-
-        response.data.data.data.forEach((item) => {
-          monthlyData[item.month] = item.count;
-        });
-
-        setChartDataSubcont(Object.values(monthlyData));
-      } else {
-        console.error("Failed to fetch data:", response.data.data.message);
-        setChartDataSubcont([]);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setChartDataSubcont([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (!mounted) {
-    return null;
-  }
-
-  const areaChartConfigMH = getAreaChartConfig(chartDataMH);
-  const areaChartConfigAR = getAreaChartConfig(chartDataAR);
-  const areaChartConfigBilling = getAreaChartConfig(chartDataBilling);
-  const areaChartConfigOperation = getAreaChartConfig(chartDataOperation);
-  const areaChartConfigVendor = getAreaChartConfig(chartDataVendor);
-  const areaChartConfigSubcont = getAreaChartConfig(chartDataSubcont);
-
-  const handleDateChange = (date) => {
-    setSelectedDate(date);
-  };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [type, flagType, isClosed]);
 
   return (
     <Main>
-      <div className="p-6 shadow-md shadow-gray-300 rounded-lg dark:border-gray-300 dark:bg-[#111217] dark:text-white border-gray-300 bg-white text-black mb-2">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold dark:text-gray-800">
-            INCIDENT MANAGEMENT SYSTEM
+      <div className="p-6 rounded-2xl bg-white dark:bg-[#111217] border border-gray-200 dark:border-gray-700 shadow-sm">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-3">
+          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white tracking-tight uppercase">
+            Incidents Overview
           </h2>
           <Datepicker
             value={selectedDate}
             onChange={handleDateChange}
             day={false}
-            month={false}
+            month={true}
             year={true}
           />
         </div>
 
-        <hr className="h-0.5 bg-gray-300 dark:bg-gray-400 border-none mb-4" />
+        <hr className="border-t border-gray-300 dark:border-gray-600 mb-3" />
 
-        <div className="flex flex-col md:flex-row gap-4 mb-4">
-          <div className="w-full md:w-1/2">
-            <div className="card shadow-md shadow-gray-300">
-              <div className="card-header">
-                <h3 className="card-title dark:text-gray-800">Pending AR</h3>
-              </div>
-              <div className="px-3 py-1">
-                {loading ? (
-                  <p className="dark:text-gray-800">Loading...</p>
-                ) : (
-                  <ReactApexChart
-                    options={areaChartConfigAR}
-                    series={areaChartConfigAR.series}
-                    type="area"
-                    height={250}
-                  />
-                )}
-              </div>
-            </div>
-          </div>
+        <BarChart selectedDate={selectedDate} />
 
-          <div className="w-full md:w-1/2">
-            <div className="card shadow-md shadow-gray-300">
-              <div className="card-header">
-                <h3 className="card-title dark:text-gray-800">
-                  Pending Billing
-                </h3>
-              </div>
-              <div className="px-3 py-1">
-                {loading ? (
-                  <p className="dark:text-gray-800">Loading...</p>
-                ) : (
-                  <ReactApexChart
-                    options={areaChartConfigBilling}
-                    series={areaChartConfigBilling.series}
-                    type="area"
-                    height={250}
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+        <hr
+          id="table-incident"
+          className="border-t border-gray-300 dark:border-gray-600 mt-6 mb-6"
+        />
 
-        <div className="flex flex-col md:flex-row gap-4 mb-4">
-          <div className="w-full md:w-1/2">
-            <div className="card shadow-md shadow-gray-300">
-              <div className="card-header">
-                <h3 className="card-title dark:text-gray-800">
-                  Manhour Utilization
-                </h3>
-              </div>
-              <div className="px-3 py-1">
-                {loading ? (
-                  <p className="dark:text-gray-800">Loading...</p>
-                ) : (
-                  <ReactApexChart
-                    options={areaChartConfigMH}
-                    series={areaChartConfigMH.series}
-                    type="area"
-                    height={250}
+        <DataTable
+          columns={visibleColumns}
+          url={`${process.env.NEXT_PUBLIC_API_URL}/api/incident?type=${
+            type || "All Categories"
+          }&flag=${flagType}&isClosed=${isClosed}&month=${
+            month ?? currentMonth
+          }&year=${year ?? currentYear}`}
+          filterColumns={[
+            { header: "All", accessorKey: "All" },
+            ...Incident(() => {}).sort((a, b) =>
+              (a.header?.toString() ?? "").localeCompare(
+                b.header?.toString() ?? ""
+              )
+            ),
+          ].map((col) => {
+            const key = "accessorKey" in col ? col.accessorKey : undefined;
+            return (
+              <div
+                key={key ?? ""}
+                className="menu-item flex items-center w-full"
+              >
+                <label className="menu-link form-label flex items-center gap-2 w-full">
+                  <input
+                    type="checkbox"
+                    className="checkbox w-full"
+                    checked={
+                      key === "All"
+                        ? isAllSelected
+                        : selectedColumns.includes(key ?? "")
+                    }
+                    onChange={() => handleColumnToggle(key ?? "")}
                   />
-                )}
+                  <span className="flex-grow">
+                    {col.header?.toString() ?? ""}
+                  </span>
+                </label>
               </div>
-            </div>
-          </div>
-
-          <div className="w-full md:w-1/2">
-            <div className="card shadow-md shadow-gray-300">
-              <div className="card-header">
-                <h3 className="card-title dark:text-gray-800">
-                  Delay Operation
-                </h3>
-              </div>
-              <div className="px-3 py-1">
-                {loading ? (
-                  <p className="dark:text-gray-800">Loading...</p>
-                ) : (
-                  <ReactApexChart
-                    options={areaChartConfigOperation}
-                    series={areaChartConfigOperation.series}
-                    type="area"
-                    height={250}
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="w-full md:w-1/2">
-            <div className="card shadow-md shadow-gray-300">
-              <div className="card-header">
-                <h3 className="card-title dark:text-gray-800">
-                  Vendor Performance
-                </h3>
-              </div>
-              <div className="px-3 py-1">
-                {loading ? (
-                  <p className="dark:text-gray-800">Loading...</p>
-                ) : (
-                  <ReactApexChart
-                    options={areaChartConfigVendor}
-                    series={areaChartConfigVendor.series}
-                    type="area"
-                    height={250}
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="w-full md:w-1/2">
-            <div className="card shadow-md shadow-gray-300">
-              <div className="card-header">
-                <h3 className="card-title dark:text-gray-800">
-                  Subcont Performance
-                </h3>
-              </div>
-              <div className="px-3 py-1">
-                {loading ? (
-                  <p className="dark:text-gray-800">Loading...</p>
-                ) : (
-                  <ReactApexChart
-                    options={areaChartConfigSubcont}
-                    series={areaChartConfigSubcont.series}
-                    type="area"
-                    height={250}
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+            );
+          })}
+          filterDate={false}
+          refresh={refreshTable}
+        />
       </div>
+
+      <button id="toggleModal" data-modal-toggle="#modalDetail"></button>
+
+      <ModalDetailIncident selectedData={selectedData} />
     </Main>
   );
 };
 
-export default Home;
+export default Index;

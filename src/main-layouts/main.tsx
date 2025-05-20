@@ -66,7 +66,7 @@ const Main: React.FC<CardProps> = ({ children }) => {
         <div className="wrapper flex grow flex-col w-full">
           <Header onLogout={handleLogout} />
           <main
-            className="grow w-full pt-5 relative"
+            className="grow w-full relative  p-6"
             id="content"
             role="content"
             style={{
@@ -75,22 +75,26 @@ const Main: React.FC<CardProps> = ({ children }) => {
               msOverflowStyle: "none",
             }}
           >
+            <div ref={topRef} />
+            {children}
+            <div ref={bottomRef} />
             <button
-              className="btn btn-light fixed bottom-12 right-12 p-3 rounded-full shadow-md shadow-gray-300 hover:scale-[110%] active:scale-[100%] z-[9999]"
               onClick={isAtBottom ? handleScrollToTop : handleScrollToBottom}
+              className="fixed bottom-12 right-12 z-50 flex items-center justify-center w-10 h-10
+           rounded-full bg-gradient-to-br from-[#3b82f6] to-[#06b6d4] text-white
+           shadow-lg hover:shadow-xl active:shadow-md
+           transition-all duration-300 ease-in-out transform hover:scale-105"
+              aria-label={isAtBottom ? "Scroll to top" : "Scroll to bottom"}
             >
-              {isAtBottom ? (
-                <i className="ki-outline ki-double-up"></i>
-              ) : (
-                <i className="ki-outline ki-double-down"></i>
-              )}
+              <i
+                className={`ki-outline ${
+                  isAtBottom ? "ki-double-up" : "ki-double-down"
+                } text-2xl transition-transform duration-300 ease-in-out`}
+              ></i>
             </button>
-
-            <div className="container-fixed w-full">
-              <div ref={topRef} />
-              {children}
-              <div ref={bottomRef} />
-            </div>
+            {/* <div className="container-fixed w-full">
+              
+            </div> */}
           </main>
           <Footer />
         </div>
