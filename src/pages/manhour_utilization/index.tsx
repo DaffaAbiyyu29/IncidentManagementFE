@@ -97,19 +97,6 @@ export default function ManhourUtilization() {
           selectedColumns.includes(col.accessorKey)
       );
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("incidentType");
-    }
-
-    const handleBeforeUnload = () => {
-      localStorage.removeItem("incidentType");
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [type]);
-
   return (
     <Main>
       <div className="p-6 shadow-md shadow-gray-300 rounded-lg dark:border-gray-300 dark:bg-[#111217] dark:text-white border-gray-300 bg-white text-black mb-2">

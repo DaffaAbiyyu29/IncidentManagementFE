@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Main from "../../main-layouts/main";
 import DataTable from "../../components/Datatables";
 import clsx from "clsx";
@@ -12,6 +12,57 @@ export default function DelayOperation() {
   const [selectedData, setSelectedData] = useState(null);
   const [selectedColumns, setSelectedColumns] = useState(defaultColumns);
   const [isAllSelected, setIsAllSelected] = useState(false);
+  const [month, setMonth] = useState<string | null>(null);
+  const [year, setYear] = useState<string | null>(null);
+  const [type, setType] = useState<string | null>("0");
+  const [storageUpdated, setStorageUpdated] = useState(Date.now());
+
+  const currentDate = new Date();
+  const currentMonth = (currentDate.getMonth() + 1).toString();
+  const currentYear = currentDate.getFullYear().toString();
+
+  const loadFromLocalStorage = () => {
+    if (typeof window !== "undefined") {
+      const storedMonth = localStorage.getItem("selectedMonth");
+      const storedYear = localStorage.getItem("selectedYear");
+      const storedType = localStorage.getItem("incidentType");
+
+      if (storedMonth && storedYear) {
+        setMonth(storedMonth);
+        setYear(storedYear);
+      }
+
+      if (storedType) {
+        setType(storedType);
+      }
+    }
+  };
+
+  useEffect(() => {
+    loadFromLocalStorage();
+
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === "selectedMonth" || event.key === "selectedYear") {
+        setStorageUpdated(Date.now());
+      }
+    };
+
+    const handleCustomEvent = () => {
+      setStorageUpdated(Date.now());
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("localStorageUpdated", handleCustomEvent);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("localStorageUpdated", handleCustomEvent);
+    };
+  }, []);
+
+  useEffect(() => {
+    loadFromLocalStorage();
+  }, [storageUpdated]);
 
   const handleOpenModal = (rowData) => {
     setSelectedData(rowData);
@@ -51,7 +102,11 @@ export default function DelayOperation() {
     <Main>
       <DataTable
         columns={visibleColumns}
-        url={`${process.env.NEXT_PUBLIC_API_URL}/api/schedule-recommendation`}
+        url={`${
+          process.env.NEXT_PUBLIC_API_URL
+        }/api/schedule-recommendation?month=${month ?? currentMonth}&year=${
+          year ?? currentYear
+        }&type=${type}`}
         filterColumns={[
           { header: "All", accessorKey: "All" },
           ...SR(() => {}).sort((a, b) =>
@@ -82,6 +137,7 @@ export default function DelayOperation() {
           );
         })}
         filterDate={true}
+        filterIncident={true}
       />
 
       <button id="toggleModal" data-modal-toggle="#modalDetail"></button>

@@ -39,23 +39,6 @@ const Datepicker = ({ value, onChange, month, year, day }) => {
     (_, i) => today.getFullYear() - 25 + i
   );
 
-  // useEffect(() => {
-  //   if (typeof window !== "undefined") {
-  //     localStorage.removeItem("selectedMonth");
-  //     localStorage.removeItem("selectedYear");
-  //     localStorage.removeItem("selectedDay");
-  //   }
-
-  //   const handleBeforeUnload = () => {
-  //     localStorage.removeItem("selectedMonth");
-  //     localStorage.removeItem("selectedYear");
-  //     localStorage.removeItem("selectedDay");
-  //   };
-
-  //   window.addEventListener("beforeunload", handleBeforeUnload);
-  //   return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  // }, [month, year, day]);
-
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (calendarRef.current && !calendarRef.current.contains(event.target)) {

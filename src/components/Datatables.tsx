@@ -53,40 +53,51 @@ const DataTable = ({
   // }, []);
 
   const token = Cookies.get("token");
+  let timeoutId;
+
   useEffect(() => {
-    const getData = async () => {
-      setIsLoading(true);
+    if (timeoutId) clearTimeout(timeoutId); // Clear previous timeout
 
-      try {
-        const pageParam = url.includes("?") ? `&page=${page}` : `?page=${page}`;
-        // const finalUrl = `a`;
-        const finalUrl = `${url}${pageParam}&limit=${limit}&search=${search}&sort=${sort}&order=${order}`;
+    timeoutId = setTimeout(() => {
+      const getData = async () => {
+        setIsLoading(true);
+        try {
+          const pageParam = url.includes("?")
+            ? `&page=${page}`
+            : `?page=${page}`;
+          const finalUrl = `${url}${pageParam}&limit=${limit}&search=${search}&sort=${sort}&order=${order}`;
 
-        const res = await axios.get(finalUrl, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+          const res = await axios.get(finalUrl, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
 
-        const fetchedData = res.data.data.data || [];
-        setTotalPages(res.data.data.totalPages);
-        setTotalItems(res.data.data.totalItems);
+          const fetchedData = res.data.data.data || [];
+          setTotalPages(res.data.data.totalPages);
+          setTotalItems(res.data.data.totalItems);
 
-        const numberedData = fetchedData.map((item, index) => ({
-          ...item,
-          number: (page - 1) * limit + index + 1,
-        }));
-        setData(numberedData);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 500);
-      }
-    };
+          const numberedData = fetchedData.map((item, index) => ({
+            ...item,
+            number: (page - 1) * limit + index + 1,
+          }));
+          setData(numberedData);
+        } catch (error) {
+          console.error(error);
+        } finally {
+          setTimeout(() => {
+            setIsLoading(false);
+            const theme = localStorage.getItem("theme");
+            localStorage.clear();
+            localStorage.setItem("theme", theme);
+          }, 500);
+        }
+      };
 
-    getData();
+      getData();
+    }, 300); // delay 300ms agar perubahan bersamaan tidak trigger berkali-kali
+
+    return () => clearTimeout(timeoutId); // Cleanup untuk mencegah pemanggilan dobel
   }, [
     page,
     limit,
@@ -579,7 +590,8 @@ const DataTable = ({
                       key={row.id}
                       className={clsx(
                         // "hover:bg-gray-100 dark:hover:bg-gray-200 transition-colors",
-                        row.original.flagStatus === 1 && "bg-yellow-200 dark:text-dark"
+                        row.original.flagStatus === 1 &&
+                          "bg-yellow-200 dark:text-dark"
                       )}
                     >
                       <td className="text-center p-4 border-b border-gray-200 dark:border-gray-600">

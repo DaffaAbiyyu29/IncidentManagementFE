@@ -170,27 +170,6 @@ const Index = () => {
           selectedColumns.includes(col.accessorKey)
       );
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("incidentType");
-      localStorage.removeItem("flagType");
-      localStorage.removeItem("selectedMonth");
-      localStorage.removeItem("selectedYear");
-      localStorage.removeItem("isClosed");
-    }
-
-    const handleBeforeUnload = () => {
-      localStorage.removeItem("incidentType");
-      localStorage.removeItem("flagType");
-      localStorage.removeItem("selectedMonth");
-      localStorage.removeItem("selectedYear");
-      localStorage.removeItem("isClosed");
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [type, flagType, isClosed]);
-
   return (
     <Main>
       <div className="p-6 rounded-2xl bg-white dark:bg-[#111217] border border-gray-200 dark:border-gray-700 shadow-sm">
